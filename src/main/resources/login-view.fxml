@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="15.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.clinic.controller.LoginController"
+      style="-fx-padding: 40; -fx-background-color: #34495e;">
+
+    <Label text="Doctor Login" style="-fx-font-size: 20px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+
+    <TextField fx:id="usernameField" promptText="Doctor ID (Username)" maxWidth="200"/>
+    <PasswordField fx:id="passwordField" promptText="Password" maxWidth="200"/>
+
+    <Button text="Access Dashboard" onAction="#handleLogin"
+            style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold;"/>
+
+    <Label fx:id="errorLabel" style="-fx-text-fill: #e74c3c;"/>
+</VBox>

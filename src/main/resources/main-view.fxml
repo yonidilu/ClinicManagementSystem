@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 
 <VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/fxml/1"
       xmlns:fx="http://javafx.com/fxml"
@@ -14,10 +15,16 @@
     </padding>
 
     <Label text="Clinic Patient Registry" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+    <Label text="Fayda ID:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
 
+    <TextField fx:id="FaydaField" promptText="Enter 12-digit ID"
+               GridPane.rowIndex="2" GridPane.columnIndex="1"/>
     <GridPane hgap="10" vgap="10" alignment="CENTER">
         <TextField fx:id="patientNameField" promptText="Patient Name" prefWidth="200" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
         <TextField fx:id="ailmentField" promptText="Ailment/Issue" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <Label text="Fayda ID:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="faydaField" promptText="16-digit ID"
+                   GridPane.rowIndex="2" GridPane.columnIndex="1"/>
     </GridPane>
 
     <HBox spacing="15" alignment="CENTER">
@@ -35,11 +42,17 @@
     </HBox>
 
     <TextField fx:id="searchField" promptText="Search patients by name..." maxWidth="400"/>
+    <TextField fx:id="faydaField" promptText = "Enter fayda"/>
 
     <TableView fx:id="patientTable" prefHeight="250" prefWidth="450" style="-fx-background-radius: 5;">
         <columns>
             <TableColumn fx:id="nameColumn" text="Name" prefWidth="180" />
-            <TableColumn fx:id="ailmentColumn" text="Ailment" prefWidth="250" />
+            <TableColumn fx:id="ailmentColumn" text="Ailment" prefWidth="250"/>
+                <TableColumn fx:id="faydaColumn" text="fayda" prefWidth="100">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="fayda" />
+                    </cellValueFactory>
+                </TableColumn>
         </columns>
     </TableView>
 

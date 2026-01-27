@@ -17,12 +17,13 @@ import java.io.IOException;
 public class MainController {
     @FXML private TextField patientNameField;
     @FXML private TextField ailmentField;
+    @FXML private TextField faydaField;
     @FXML private TextField searchField;
     @FXML private Label countLabel;
     @FXML private TableView<Patient> patientTable;
     @FXML private TableColumn<Patient, String> nameColumn;
     @FXML private TableColumn<Patient, String> ailmentColumn;
-
+    @FXML private TableColumn<Patient, String> faydaColumn;
     private final ObservableList<Patient> patientList = FXCollections.observableArrayList();
 
     @FXML
@@ -62,6 +63,7 @@ public class MainController {
     protected void onRegisterButtonClick() {
         String name = patientNameField.getText();
         String ailment = ailmentField.getText();
+        String fayda = faydaField.getText();
 
         // 1. Check if the clinic is full (Limit: 5)
         if (patientList.size() >= 5) {
@@ -74,10 +76,12 @@ public class MainController {
         }
 
         // 2. If not full, proceed with adding
-        if (!name.isEmpty() && !ailment.isEmpty()) {
-            patientList.add(new Patient(name, 30, ailment));
+        // Use .getText().isEmpty() instead of just .isEmpty()
+        if (!name.isEmpty() && !ailment.isEmpty() && !fayda.isEmpty()) {
+            patientList.add(new Patient(name, 30, ailment, fayda));
             patientNameField.clear();
             ailmentField.clear();
+            faydaField.clear();
             updateCount();
             saveToFile(); // Remember to save the change!
         }
@@ -114,8 +118,8 @@ public class MainController {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
-                if (data.length == 3) {
-                    patientList.add(new Patient(data[0], Integer.parseInt(data[1]), data[2]));
+                if (data.length == 4) {
+                    patientList.add(new Patient(data[0], Integer.parseInt(data[1]), data[2], data[3]));
                 }
             }
             updateCount();

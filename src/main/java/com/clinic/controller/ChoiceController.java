@@ -8,26 +8,46 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+
 public class ChoiceController {
 
     @FXML private void onDoctorSelected(ActionEvent event) { openLogin(event, "Doctor"); }
     @FXML private void onStaffSelected(ActionEvent event) { openLogin(event, "Staff"); }
-    @FXML private void onPatientSelected(ActionEvent event) { openLogin(event, "Patient"); }
+    @FXML
+    private void handleDoctorRole(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/login-view.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            stage.setScene(new Scene(root));
+
+            // ADD THIS TO PREVENT THE SHRINK
+            stage.setMaximized(true);
+
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Error loading login view!");
+        }
+    }
 
     private void openLogin(ActionEvent event, String role) {
         try {
-            // Note the leading forward slash in the path
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/login-view.fxml"));
             Parent root = loader.load();
 
-            LoginController loginController = loader.getController();
-            loginController.setTargetRole(role);
-
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 350, 400));
-            stage.setTitle(role + " Login");
-        } catch (Exception e) {
-            e.printStackTrace();
+
+            // 1. Set the scene
+            stage.setScene(new Scene(root));
+
+            // 2. FORCE the maximize immediately after setting the scene
+            stage.setMaximized(true);
+
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Error loading login view!");
         }
     }
+
 }

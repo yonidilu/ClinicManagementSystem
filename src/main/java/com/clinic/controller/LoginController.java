@@ -8,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import java.io.IOException;
 
 public class LoginController {
     @FXML private TextField usernameField;
@@ -22,18 +23,28 @@ public class LoginController {
         if (roleLabel != null) roleLabel.setText(role + " Login");
     }
 
+    // Inside your LoginController method that opens the main view
+
     @FXML
     private void handleLogin(ActionEvent event) {
-        String user = usernameField.getText();
-        String pass = passwordField.getText();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-view.fxml"));
+            Parent root = loader.load();
 
-        // Check against your specific credentials
-        if ((user.equals("doc123") && pass.equals("admin")) ||
-                (user.equals("staff") && pass.equals("123")) ||
-                (user.equals("patient1") && pass.equals("123"))) {
-            loadDashboard(event, !user.equals("patient1"));
-        } else {
-            errorLabel.setText("Invalid credentials!");
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+
+            // This tells Java: "Finish loading everything first, THEN make it big."
+            javafx.application.Platform.runLater(() -> {
+                stage.setMaximized(false); // Reset it for a split second
+                stage.setMaximized(true);  // Force it to fill the screen
+            });
+
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("CRITICAL: Failed to load dashboard!");
+            e.printStackTrace();
         }
     }
 
@@ -54,8 +65,13 @@ public class LoginController {
             MainController controller = loader.getController();
             controller.setAccessLevel(isAdmin);
 
+            // Inside your login logic...
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 800, 600));
+            stage.setScene(new Scene(root));
+
+        // FORCE MAXIMIZE AGAIN
+            stage.setMaximized(true);
+
             stage.show();
         } catch (Exception e) {
             System.err.println("CRITICAL: Failed to load dashboard! Check method names.");

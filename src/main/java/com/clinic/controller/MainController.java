@@ -54,7 +54,7 @@ public class MainController {
         Patient selected = patientTable.getSelectionModel().getSelectedItem();
         if (selected == null) return;
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/clinic/view/details-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("details-view.fxml"));
             Parent root = loader.load();
             DetailsController controller = loader.getController();
             controller.setPatient(selected);
@@ -67,17 +67,12 @@ public class MainController {
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
-            // Load the initial choice view
+            // Simple path that looks in the root of your resources folder
             Parent root = FXMLLoader.load(getClass().getResource("/choice-view.fxml"));
-
-            // Get the current stage (window) using the event source
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // Set the scene back to the original size
             stage.setScene(new Scene(root, 400, 400));
             stage.show();
         } catch (IOException e) {
-            System.err.println("Error: Could not return to the choice view.");
             e.printStackTrace();
         }
     }

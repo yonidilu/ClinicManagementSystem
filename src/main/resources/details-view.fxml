@@ -20,7 +20,23 @@
 
         <Label text="Fayda ID:" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
         <Label fx:id="faydaLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+        <Label text="Doctor:" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-font-weight: bold;"/>
+        <Label fx:id="doctorLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+        <Label text="Diagnosis:" GridPane.columnIndex="0" GridPane.rowIndex="4" style="-fx-font-weight: bold;"/>
+        <Label fx:id="diagnosisLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+        <Label text="Treatment:" GridPane.columnIndex="0" GridPane.rowIndex="5" style="-fx-font-weight: bold;"/>
+        <Label fx:id="treatmentLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+
+        <Label text="Appointment:" GridPane.columnIndex="0" GridPane.rowIndex="6" style="-fx-font-weight: bold;"/>
+        <Label fx:id="appointmentLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+
+        <Label text="Payment:" GridPane.columnIndex="0" GridPane.rowIndex="7" style="-fx-font-weight: bold;"/>
+        <Label fx:id="paymentLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="7"/>
     </GridPane>
+
 
     <Button text="Close" onAction="#onCloseClick" prefWidth="100"/>
 

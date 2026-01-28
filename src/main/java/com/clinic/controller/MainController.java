@@ -51,17 +51,34 @@ public class MainController {
 
     @FXML
     private void onShowDetails() {
+        // 1. Get the selected patient from the table
         Patient selected = patientTable.getSelectionModel().getSelectedItem();
-        if (selected == null) return;
+
+        // 2. If nothing is selected, don't do anything (or show an alert)
+        if (selected == null) {
+            System.out.println("Please select a patient first!");
+            return;
+        }
+
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("details-view.fxml"));
+            // 3. Fix the path to the root
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/details-view.fxml"));
             Parent root = loader.load();
+
+            // 4. Get the controller and send the patient data to it
             DetailsController controller = loader.getController();
             controller.setPatient(selected);
+
+            // 5. Open the new window
             Stage stage = new Stage();
+            stage.setTitle("Patient Details");
             stage.setScene(new Scene(root));
             stage.show();
-        } catch (IOException e) { e.printStackTrace(); }
+
+        } catch (IOException e) {
+            System.err.println("Could not load details-view.fxml. Check the file location.");
+            e.printStackTrace();
+        }
     }
 
     @FXML

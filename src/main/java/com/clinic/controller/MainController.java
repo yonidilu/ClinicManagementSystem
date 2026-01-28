@@ -67,10 +67,19 @@ public class MainController {
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/com/clinic/view/choice-view.fxml"));
+            // Load the initial choice view
+            Parent root = FXMLLoader.load(getClass().getResource("/choice-view.fxml"));
+
+            // Get the current stage (window) using the event source
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            // Set the scene back to the original size
             stage.setScene(new Scene(root, 400, 400));
-        } catch (IOException e) { e.printStackTrace(); }
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Error: Could not return to the choice view.");
+            e.printStackTrace();
+        }
     }
 
     @FXML

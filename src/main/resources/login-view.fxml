@@ -6,13 +6,13 @@
       fx:controller="com.clinic.controller.LoginController"
       style="-fx-padding: 40; -fx-background-color: #34495e;">
 
-    <Label text="Doctor Login" style="-fx-font-size: 20px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+    <Label fx:id="roleLabel" text="Login" style="-fx-font-size: 20px; -fx-text-fill: white; -fx-font-weight: bold;"/>
 
-    <TextField fx:id="usernameField" promptText="Doctor ID (Username)" maxWidth="200"/>
+    <TextField fx:id="usernameField" promptText="Username" maxWidth="200"/>
     <PasswordField fx:id="passwordField" promptText="Password" maxWidth="200"/>
 
-    <Button text="Access Dashboard" onAction="#handleLogin"
-            style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold;"/>
-
+    <Button text="Login" onAction="#handleLogin" prefWidth="200" style="-fx-background-color: #2ecc71; -fx-text-fill: white;"/>
     <Label fx:id="errorLabel" style="-fx-text-fill: #e74c3c;"/>
+
+    <Button text="← Back to Roles" onAction="#goBack" style="-fx-background-color: transparent; -fx-text-fill: #bdc3c7;"/>
 </VBox>

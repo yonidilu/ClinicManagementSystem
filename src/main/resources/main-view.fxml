@@ -1,62 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.geometry.Insets?>
 
-<VBox alignment="CENTER" spacing="15.0" xmlns="http://javafx.com/fxml/1"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.clinic.controller.MainController"
-      style="-fx-padding: 20;">
+<VBox spacing="20" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.clinic.controller.MainController" style="-fx-background-color: white;">
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
 
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
+    <Label text="Clinic Patient Registry" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
 
-    <Label text="Clinic Patient Registry" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-    <Label text="Fayda ID:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-
-    <TextField fx:id="FaydaField" promptText="Enter 12-digit ID"
-               GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-    <GridPane hgap="10" vgap="10" alignment="CENTER">
-        <TextField fx:id="patientNameField" promptText="Patient Name" prefWidth="200" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-        <TextField fx:id="ailmentField" promptText="Ailment/Issue" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-        <Label text="Fayda ID:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <TextField fx:id="faydaField" promptText="16-digit ID"
-                   GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-    </GridPane>
-
-    <HBox spacing="15" alignment="CENTER">
-        <Button text="Add Patient" onAction="#onRegisterButtonClick"
-                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15;"/>
-
-        <Button text="Remove Selected" onAction="#onDeleteButtonClick"
-                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15;"/>
-
-        <Button text="View Details" onAction="#onShowDetails"
-                style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;"/>
-
-        <Button text="Logout" onAction="#handleLogout"
-                style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;"/>
+    <HBox spacing="10" alignment="CENTER">
+        <TextField fx:id="patientNameField" promptText="Patient Name" prefWidth="150"/>
+        <TextField fx:id="ailmentField" promptText="Ailment/Issue" prefWidth="150"/>
+        <TextField fx:id="faydaField" promptText="Fayda ID" prefWidth="150"/>
+        <Button text="Add Patient" onAction="#onRegisterButtonClick" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"/>
     </HBox>
 
-    <TextField fx:id="searchField" promptText="Search patients by name..." maxWidth="400"/>
-    <TextField fx:id="faydaField" promptText = "Enter fayda"/>
-
-    <TableView fx:id="patientTable" prefHeight="250" prefWidth="450" style="-fx-background-radius: 5;">
+    <TableView fx:id="patientTable" prefHeight="300" prefWidth="550">
         <columns>
-            <TableColumn fx:id="nameColumn" text="Name" prefWidth="180" />
-            <TableColumn fx:id="ailmentColumn" text="Ailment" prefWidth="250"/>
-                <TableColumn fx:id="faydaColumn" text="fayda" prefWidth="100">
-                    <cellValueFactory>
-                        <PropertyValueFactory property="fayda" />
-                    </cellValueFactory>
-                </TableColumn>
+            <TableColumn text="Name" prefWidth="180">
+                <cellValueFactory><PropertyValueFactory property="name" /></cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Ailment" prefWidth="250">
+                <cellValueFactory><PropertyValueFactory property="ailment" /></cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Fayda" prefWidth="100">
+                <cellValueFactory><PropertyValueFactory property="fayda" /></cellValueFactory>
+            </TableColumn>
         </columns>
     </TableView>
 
-    <Label fx:id="countLabel" text="Total Patients: 0" style="-fx-font-size: 14px; -fx-font-italic: true;"/>
+    <HBox fx:id="adminControls" spacing="15" alignment="CENTER">
+        <Button text="Remove Selected" onAction="#onDeleteButtonClick" style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
+        <Button text="View Details" onAction="#onShowDetails" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+        <Button text="Logout" onAction="#handleLogout" style="-fx-background-color: #7f8c8d; -fx-text-fill: white;"/>
+    </HBox>
 
-
+    <Label fx:id="countLabel" text="Total Patients: 0" style="-fx-font-italic: true;"/>
 </VBox>

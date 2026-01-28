@@ -6,20 +6,18 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 public class DetailsController {
-    @FXML private Label detailsLabel;
+    @FXML private Label nameLabel, ailmentLabel, faydaLabel;
 
-    public void setPatientData(Patient patient) {
-        String info = "Name: " + patient.getName() + "\n" +
-                "Age: " + patient.getAge() + "\n" +
-                "Diagnosis: " + patient.getAilment() + "\n\n" +
-                "Status: Admitted\n" +
-                "Record ID: " + System.currentTimeMillis() % 10000;
-        detailsLabel.setText(info);
+    public void setPatient(Patient p) {
+        if (p != null) {
+            nameLabel.setText("Name: " + p.getName());
+            ailmentLabel.setText("Ailment: " + p.getAilment());
+            faydaLabel.setText("Fayda: " + p.getFayda());
+        }
     }
 
     @FXML
     private void onCloseClick() {
-        Stage stage = (Stage) detailsLabel.getScene().getWindow();
-        stage.close();
+        ((Stage) nameLabel.getScene().getWindow()).close();
     }
 }

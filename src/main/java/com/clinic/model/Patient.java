@@ -1,24 +1,19 @@
 package com.clinic.model;
+import java.io.Serializable;
 
-
-
-public class Patient {
+public class Patient implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String name;
-    private int age;
     private String ailment;
-    private String faydaID;
+    private String fayda;
 
-    public Patient(String name, int age, String ailment, String fayda) {
+    public Patient(String name, String ailment, String fayda) {
         this.name = name;
-        this.age = age;
         this.ailment = ailment;
-        this.faydaID = fayda;
+        this.fayda = fayda;
     }
 
-    // Getters (Required for the Table to "see" the data)
     public String getName() { return name; }
-    public int getAge() { return age; }
     public String getAilment() { return ailment; }
-    public String getFaydaID(){return faydaID; }
-    private String assignedDoctor;
+    public String getFayda() { return fayda; }
 }

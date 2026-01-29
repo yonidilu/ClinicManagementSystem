@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import java.io.IOException;
+import com.clinic.model.DatabaseManager; // Make sure this matches your folder path
 
 public class LoginController {
     @FXML private TextField usernameField;
@@ -27,24 +28,37 @@ public class LoginController {
 
     @FXML
     private void handleLogin(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-view.fxml"));
-            Parent root = loader.load();
+        // 1. Get the text from your UI fields
+        String user = usernameField.getText();
+        String pass = passwordField.getText();
 
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
+        // 2. Ask the database if these are correct
+        if (DatabaseManager.verifyLogin(user, pass)) {
+            try {
+                // ONLY if login is true, we run the transition code
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-view.fxml"));
+                Parent root = loader.load();
 
-            // This tells Java: "Finish loading everything first, THEN make it big."
-            javafx.application.Platform.runLater(() -> {
-                stage.setMaximized(false); // Reset it for a split second
-                stage.setMaximized(true);  // Force it to fill the screen
-            });
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                Scene scene = new Scene(root);
+                stage.setScene(scene);
 
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("CRITICAL: Failed to load dashboard!");
-            e.printStackTrace();
+                javafx.application.Platform.runLater(() -> {
+                    stage.setMaximized(true);
+                });
+
+                stage.show();
+                System.out.println("Login Successful for: " + user);
+
+            } catch (IOException e) {
+                System.err.println("CRITICAL: Failed to load dashboard!");
+                e.printStackTrace();
+            }
+        } else {
+            // 3. If wrong, show an error and stay on the login page
+            errorLabel.setText("Invalid Username or Password!");
+            errorLabel.setVisible(true);
+            System.out.println("Login Failed for: " + user);
         }
     }
 
@@ -75,6 +89,27 @@ public class LoginController {
             stage.show();
         } catch (Exception e) {
             System.err.println("CRITICAL: Failed to load dashboard! Check method names.");
+            e.printStackTrace();
+        }
+    }
+    private void openDashboard() {
+        try {
+            // 1. Load the Main Dashboard FXML file
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/clinic/view/main-dashboard.fxml"));
+            Parent root = loader.load();
+
+            // 2. Get the current "Stage" (the window)
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+
+            // 3. Set the new scene (the Dashboard)
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("Clinic Management System - Dashboard");
+            stage.setMaximized(true); // Optional: Make it full screen
+            stage.show();
+
+        } catch (IOException e) {
+            System.err.println("Could not find the dashboard FXML file!");
             e.printStackTrace();
         }
     }

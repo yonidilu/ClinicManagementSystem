@@ -13,13 +13,13 @@
 
     <GridPane vgap="10" hgap="10" alignment="CENTER">
         <Label text="Full Name:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: bold;"/>
-        <Label fx:id="nameLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <Label fx:id="fullNameLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-        <Label text="Ailment:" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: bold;"/>
-        <Label fx:id="ailmentLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <Label text="Date of Birth:" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: bold;"/>
+        <Label fx:id="dobLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-        <Label text="Fayda ID:" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
-        <Label fx:id="faydaLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <Label text="ID:" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
+        <Label fx:id="idLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
         <Label text="Doctor:" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-font-weight: bold;"/>
         <Label fx:id="doctorLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="3"/>
@@ -37,7 +37,10 @@
         <Label fx:id="paymentLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="7"/>
     </GridPane>
 
-
-    <Button text="Close" onAction="#onCloseClick" prefWidth="100"/>
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="View Lab Results" onAction="#onOpenLabResults"
+                style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+        <Button text="Close" onAction="#onClose" />
+    </HBox>
 
 </VBox>

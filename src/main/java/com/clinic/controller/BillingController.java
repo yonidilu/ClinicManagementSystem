@@ -105,8 +105,14 @@ public class BillingController {
             }
 
             // 2. The "Handshake" with the Database
+            // 2. The "Handshake" with the Database
+            // We use 'id' and 'status' because those are the variables you defined at lines 99-100
             DatabaseManager.updateBillingInfo(id, amount, status);
 
+              // This updates the UI object immediately
+            currentPatient.setPaymentStatus(status);
+
+            System.out.println("UI DEBUG: Table updated for " + currentPatient.getName());
             // 3. Update the local patient object so the Main Table sees the change
             currentPatient.setPayment(amount);
             currentPatient.setStatus(status);

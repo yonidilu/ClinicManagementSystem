@@ -13,12 +13,12 @@ public class LabResult {
         this.testDate = new SimpleStringProperty(testDate);
     }
 
-    // Standard Getters - THIS FIXES THE "CANNOT RESOLVE" ERROR
+    // Standard Getters
     public String getTestName() { return testName.get(); }
     public String getResultValue() { return resultValue.get(); }
     public String getTestDate() { return testDate.get(); }
 
-    // Property Getters - For the TableView
+    // JavaFX Property Getters (This fixes the LabController errors!)
     public StringProperty testNameProperty() { return testName; }
     public StringProperty resultValueProperty() { return resultValue; }
     public StringProperty testDateProperty() { return testDate; }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/fxml/1" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.clinic.controller.EHRController" spacing="10">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Patient Medical History" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <Label fx:id="nameLabel" text="Name: "/>
+    <Label fx:id="faydaLabel" text="ID: "/>
+    <Label fx:id="dobLabel" text="DOB: "/>
+    <Label fx:id="diagnosisLabel" text="Current Diagnosis: "/>
+
+    <Label text="Treatment Plan:"/>
+    <TextArea fx:id="treatmentArea" prefHeight="100" editable="false"/>
+
+    <Label text="Prescription:"/>
+    <TextArea fx:id="prescriptionArea" prefHeight="100" editable="false"/>
+
+    <TableView fx:id="labTable" prefHeight="200">
+        <columns>
+            <TableColumn fx:id="testCol" text="Test Name" />
+            <TableColumn fx:id="resultCol" text="Result" />
+            <TableColumn fx:id="dateCol" text="Date" />
+        </columns>
+    </TableView>
+
+</VBox>

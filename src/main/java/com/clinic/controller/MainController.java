@@ -13,8 +13,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import java.io.IOException;
+import com.clinic.controller.EHRController;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -90,8 +92,7 @@ public class MainController {
         if (nameColumn != null && dobColumn != null && faydaColumn != null) {
             genderColumn.setCellValueFactory(cellData -> cellData.getValue().genderProperty());
             contactColumn.setCellValueFactory(cellData -> cellData.getValue().contactProperty());
-            statusColumn.setCellValueFactory(cellData -> cellData.getValue().statusProperty());
-            nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+            statusColumn.setCellValueFactory(cellData -> cellData.getValue().paymentStatusProperty());nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
             dobColumn.setCellValueFactory(cellData -> cellData.getValue().dobProperty());
             faydaColumn.setCellValueFactory(cellData -> cellData.getValue().faydaProperty());
         } else {
@@ -178,9 +179,10 @@ public class MainController {
                 doctor, diagnosis, treatment, prescription, apptDate, payment, regDate);
 
         if (registerButton.getText().equals("Save Changes")) {
+            // This calls the update logic that forces a disk save
             DatabaseManager.updatePatient(p);
 
-            // Better way to update the local list without index errors:
+            // Refresh the table locally so you see the change immediately
             patientList.removeIf(patient -> patient.getFayda().equals(p.getFayda()));
             patientList.add(p);
 
@@ -350,6 +352,35 @@ public class MainController {
             stage.show();
         } catch (IOException e) {
             System.err.println("FXML Error: " + e.getMessage());
+        }
+    }
+    @FXML
+    private void handleViewHistory() {
+        // 1. Get the patient selected in the table
+        Patient selectedPatient = patientTable.getSelectionModel().getSelectedItem();
+
+        if (selectedPatient != null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/ehr-view.fxml"));
+                Parent root = loader.load();
+
+                // 2. Pass the patient to the new controller
+                EHRController controller = loader.getController();
+                controller.loadPatientData(selectedPatient);
+
+                // 3. Open the new window
+                Stage stage = new Stage();
+                stage.setTitle("Medical History: " + selectedPatient.getName());
+                stage.setScene(new Scene(root));
+                stage.initModality(Modality.APPLICATION_MODAL); // Keeps focus on this window
+                stage.show();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // Show an alert if they haven't picked a patient yet
+            System.out.println("Please select a patient from the table first!");
         }
     }
 }

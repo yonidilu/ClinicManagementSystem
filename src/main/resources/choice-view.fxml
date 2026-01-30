@@ -14,10 +14,5 @@
     <Button text="Doctor (Admin)" onAction="#handleDoctorSelection"
             prefWidth="200" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
 
-    <Button text="Clinic Staff" onAction="#onStaffSelected"
-            prefWidth="200" style="-fx-background-color: #9b59b6; -fx-text-fill: white;"/>
-
-    <Button fx:id="btnHRPortal" text="Clinic HR / Hiring" onAction="#handleHRSelection"
-            prefWidth="200" style="-fx-background-color: #8e44ad; -fx-text-fill: white; -fx-font-weight: bold;"/>
 
 </VBox>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" alignment="CENTER" prefWidth="500" prefHeight="400"
+      fx:controller="com.clinic.controller.HRController"
+      style="-fx-background-color: #f4f7f6;" xmlns:fx="http://javafx.com/fxml/1">
+
+    <Label text="Clinic HR - Hire New Staff"
+           style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+
+    <VBox spacing="15" maxWidth="350" style="-fx-background-color: white; -fx-padding: 25; -fx-border-color: #dcdde1; -fx-border-radius: 8;">
+        <Label text="Doctor Credentials" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="newDoctorUser" promptText="Enter Username"/>
+        <PasswordField fx:id="newDoctorPass" promptText="Enter Password"/>
+
+        <Button text="Register New Hire" onAction="#handleHireDoctor" maxWidth="Infinity"
+                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;"/>
+
+        <Label fx:id="statusLabel" text=""/>
+    </VBox>
+
+    <Button text="Back to Main Dashboard" onAction="#handleGoBack"
+            style="-fx-background-color: #7f8c8d; -fx-text-fill: white;"/>
+</VBox>

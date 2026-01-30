@@ -6,57 +6,126 @@ import com.clinic.model.DatabaseManager;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.*;
+import java.io.FileOutputStream;
+import java.time.LocalDate;
 
 public class EHRController {
-    @FXML private Label nameLabel, faydaLabel, dobLabel, diagnosisLabel;
-    @FXML private TextArea treatmentArea, prescriptionArea;
-    @FXML private TableView<LabResult> labTable;
-    @FXML private TableColumn<LabResult, String> testCol, resultCol, dateCol;
+
+    // UI Connections from ehr-view.fxml
+    @FXML private Label nameLabel;
+    @FXML private Label idLabel; // Shows PT-26962
+    @FXML private Label faydaLabel;
+    @FXML private Label dobLabel;
+    @FXML private Label diagnosisLabel;
+
+    @FXML private TextArea treatmentArea; // The editable Treatment Plan
+    @FXML private TextArea prescriptionArea; // The editable Prescription area
+
+    @FXML private TableView<LabResult> labTable; // Shows Blood Sugar results
+    @FXML private TableColumn<LabResult, String> testCol;
+    @FXML private TableColumn<LabResult, String> resultCol;
+    @FXML private TableColumn<LabResult, String> dateCol;
+
+    // Define PDF Header Font correctly
+    private static final Font HEADER_FONT = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+    private static final Font BODY_FONT = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
 
     @FXML
     public void initialize() {
-        // Set up the columns here so they are ready BEFORE data arrives
+        // Prepare table columns
         testCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTestName()));
         resultCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getResultValue()));
         dateCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTestDate()));
     }
 
-
     public void loadPatientData(Patient patient) {
         if (patient != null) {
-
-            // 1. Fill in Basic Info
             nameLabel.setText(patient.getName());
+            idLabel.setText(patient.getFayda()); // PT-26962
             faydaLabel.setText(patient.getFayda());
             dobLabel.setText(patient.getDob());
             diagnosisLabel.setText(patient.getDiagnosis());
-            treatmentArea.setText(patient.getTreatment());
-            prescriptionArea.setText(patient.getPrescription());
+            treatmentArea.setText(patient.getTreatment()); // Shows "efw"
+            prescriptionArea.setText(patient.getPrescription()); // Shows "ergqerv"
 
-            // 2. Setup Lab Table
-            testCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getTestName()));
-            resultCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getResultValue()));
-            dateCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getTestDate()));
-
-            // 3. Load the data from the database
+            // Load data from DB
             labTable.setItems(DatabaseManager.getPatientLabs(patient.getFayda()));
         }
-
     }
+
     @FXML
     private void handleSaveEHR() {
-        String faydaId = faydaLabel.getText();
-
-        // Create a patient object with the updated text from the areas
         Patient p = new Patient();
-        p.setFayda(faydaId);
+        p.setFayda(faydaLabel.getText());
         p.setDiagnosis(diagnosisLabel.getText());
         p.setTreatment(treatmentArea.getText());
         p.setPrescription(prescriptionArea.getText());
 
-        // Call the manager to force the save to C:/ClinicData/clinic.db
         DatabaseManager.updatePatient(p);
+        System.out.println("EHR Saved for: " + p.getFayda());
+    }
 
-        System.out.println("DEBUG: EHR Changes committed for " + faydaId);
+    @FXML
+    public void exportMedicalReport() {
+        String patientId = idLabel.getText();
+        String path = "Medical_Report_" + patientId + ".pdf";
+
+        Document document = new Document();
+        try {
+            PdfWriter.getInstance(document, new FileOutputStream(path));
+            document.open();
+
+            // Report Content
+            document.add(new Paragraph("CLINIC MEDICAL REPORT", HEADER_FONT));
+            document.add(new Paragraph("Date: " + LocalDate.now(), BODY_FONT));
+            document.add(new Paragraph("---------------------------------------"));
+            document.add(new Paragraph("Patient Name: " + nameLabel.getText(), BODY_FONT));
+            document.add(new Paragraph("Patient ID: " + patientId, BODY_FONT));
+
+            document.add(new Paragraph("\nTreatment Plan:", HEADER_FONT));
+            document.add(new Paragraph(treatmentArea.getText(), BODY_FONT));
+
+            document.add(new Paragraph("\nPrescription:", HEADER_FONT));
+            document.add(new Paragraph(prescriptionArea.getText(), BODY_FONT));
+
+            // Lab Results Table
+            document.add(new Paragraph("\nLab Test History:", HEADER_FONT));
+            PdfPTable table = new PdfPTable(3);
+            table.setWidthPercentage(100);
+            table.addCell("Test Name"); table.addCell("Result"); table.addCell("Date");
+
+            for (LabResult result : labTable.getItems()) {
+                table.addCell(result.getTestName()); // e.g. Blood Sugar
+                table.addCell(result.getResultValue()); // e.g. 3
+                table.addCell(result.getTestDate()); // e.g. 2026-01-30
+            }
+            document.add(table);
+
+            document.close();
+            showAlert("Success", "Medical Report saved to " + path);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Could not generate PDF: " + e.getMessage());
+        }
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Report Generated");
+        alert.setHeaderText(null);
+        alert.setContentText("Medical Report for " + nameLabel.getText() + " has been saved!");
+        alert.showAndWait();
+    }
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

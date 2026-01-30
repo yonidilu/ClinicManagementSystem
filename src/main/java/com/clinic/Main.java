@@ -1,5 +1,6 @@
 package com.clinic;
 
+import com.clinic.model.DatabaseManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -21,5 +22,10 @@ public class Main extends Application {
         stage.show();
     }
 
-    public static void main(String[] args) { launch(); }
+    public static void main(String[] args) {
+        // 1. THIS IS THE KEY: Run the setup before the window opens
+        DatabaseManager.initializeDatabase();
+
+        launch(args);
+    }
 }

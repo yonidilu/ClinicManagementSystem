@@ -28,37 +28,56 @@ public class LoginController {
 
     @FXML
     private void handleLogin(ActionEvent event) {
-        // 1. Get the text from your UI fields
         String user = usernameField.getText();
         String pass = passwordField.getText();
 
-        // 2. Ask the database if these are correct
-        if (DatabaseManager.verifyLogin(user, pass)) {
-            try {
-                // ONLY if login is true, we run the transition code
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-view.fxml"));
-                Parent root = loader.load();
+        // 1. Ask the Database what role this user has
+        String role = DatabaseManager.verifyUserRole(user, pass);
 
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                Scene scene = new Scene(root);
-                stage.setScene(scene);
+        // Inside LoginController.java handleLogin method
 
-                javafx.application.Platform.runLater(() -> {
-                    stage.setMaximized(true);
-                });
-
-                stage.show();
-                System.out.println("Login Successful for: " + user);
-
-            } catch (IOException e) {
-                System.err.println("CRITICAL: Failed to load dashboard!");
-                e.printStackTrace();
-            }
+        if ("HR".equalsIgnoreCase(role)) {
+            // Send HR users to their dashboard
+            switchToScene(event, "/hr-dashboard-view.fxml", "HR Dashboard");
+        } else if (role != null && role.equalsIgnoreCase("DOCTOR")) {
+            // Send Doctors to the patient records (Main View)
+            switchToDashboard(event, role);
         } else {
-            // 3. If wrong, show an error and stay on the login page
-            errorLabel.setText("Invalid Username or Password!");
-            errorLabel.setVisible(true);
-            System.out.println("Login Failed for: " + user);
+            // If DatabaseManager.verifyUserRole returns null, show error
+            errorLabel.setText("Invalid credentials!");
+        }
+    }
+
+    // A helper method to keep your code clean and dry
+    private void switchToScene(ActionEvent event, String fxmlPath, String title) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle(title);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void switchToDashboard(ActionEvent event, String role) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-view.fxml"));
+            Parent root = loader.load();
+
+            // Get the controller for the main view and set the role
+            MainController mainController = loader.getController();
+            mainController.setRole(role);
+
+            // Switch the stage
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Clinic Management System - " + role);
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Error loading main-view.fxml. Check your file path!");
+            e.printStackTrace();
         }
     }
 
@@ -95,7 +114,7 @@ public class LoginController {
     private void openDashboard() {
         try {
             // 1. Load the Main Dashboard FXML file
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/clinic/view/main-dashboard.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-dashboard.fxml"));
             Parent root = loader.load();
 
             // 2. Get the current "Stage" (the window)

@@ -1,33 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?> <?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
 <VBox xmlns="http://javafx.com/fxml/1" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.clinic.controller.EHRController" spacing="10">
+      fx:controller="com.clinic.controller.EHRController" spacing="15"
+      style="-fx-background-color: #f4f7f6;">
     <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
+        <Insets top="25" right="25" bottom="25" left="25"/>
     </padding>
 
-    <Label text="Patient Medical History" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+    <Label text="Patient Medical History" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
 
-    <Label fx:id="nameLabel" text="Name: "/>
-    <Label fx:id="faydaLabel" text="ID: "/>
-    <Label fx:id="dobLabel" text="DOB: "/>
-    <Label fx:id="diagnosisLabel" text="Current Diagnosis: "/>
+    <VBox spacing="5" style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #dcdde1;">
+        <Label fx:id="nameLabel" text="Name: " style="-fx-font-weight: bold;"/>
 
-    <Label text="Treatment Plan:"/>
-    <TextArea fx:id="treatmentArea" prefHeight="100" editable="false"/>
+        <Label fx:id="idLabel" text="ID: " style="-fx-text-fill: #7f8c8d;"/>
 
-    <Label text="Prescription:"/>
-    <TextArea fx:id="prescriptionArea" prefHeight="100" editable="false"/>
+        <Label fx:id="faydaLabel" visible="false" managed="false"/>
 
-    <TableView fx:id="labTable" prefHeight="200">
+        <Label fx:id="dobLabel" text="DOB: "/>
+        <Label fx:id="diagnosisLabel" text="Current Diagnosis: " style="-fx-text-fill: #e67e22;"/>
+    </VBox>
+
+    <Label text="Treatment Plan:" style="-fx-font-weight: bold;"/>
+    <TextArea fx:id="treatmentArea" prefHeight="100" wrapText="true"
+              style="-fx-control-inner-background: #ffffff; -fx-border-color: #3498db;"/>
+
+    <Label text="Prescription:" style="-fx-font-weight: bold;"/>
+    <TextArea fx:id="prescriptionArea" prefHeight="100" wrapText="true"
+              style="-fx-control-inner-background: #ffffff; -fx-border-color: #27ae60;"/>
+
+    <Label text="Lab Test Results:" style="-fx-font-weight: bold;"/>
+    <TableView fx:id="labTable" prefHeight="180">
         <columns>
-            <TableColumn fx:id="testCol" text="Test Name" />
-            <TableColumn fx:id="resultCol" text="Result" />
-            <TableColumn fx:id="dateCol" text="Date" />
+            <TableColumn fx:id="testCol" text="Test Name" prefWidth="150" />
+            <TableColumn fx:id="resultCol" text="Result" prefWidth="100" />
+            <TableColumn fx:id="dateCol" text="Date" prefWidth="120" />
         </columns>
     </TableView>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Save Changes" onAction="#handleSaveEHR"
+                style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-padding: 8 20;"/>
+        <Button text="Export Medical Report (PDF)" onAction="#exportMedicalReport"
+                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 20; -fx-font-weight: bold;"/>
+    </HBox>
 
 </VBox>

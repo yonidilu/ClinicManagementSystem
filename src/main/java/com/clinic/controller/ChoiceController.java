@@ -7,47 +7,45 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 
 public class ChoiceController {
 
-    @FXML private void onDoctorSelected(ActionEvent event) { openLogin(event, "Doctor"); }
-    @FXML private void onStaffSelected(ActionEvent event) { openLogin(event, "Staff"); }
+    // All buttons now point to this helper method
+    private void goToLogin(ActionEvent event, String title) {
+        // Use the full path so Java doesn't get lost
+        switchToScene(event, "/login-view.fxml", title);
+    }
+
     @FXML
-    private void handleDoctorRole(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/login-view.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            stage.setScene(new Scene(root));
-
-            // ADD THIS TO PREVENT THE SHRINK
-            stage.setMaximized(true);
-
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("Error loading login view!");
-        }
+    private void handleDoctorSelection(ActionEvent event) {
+        goToLogin(event, "Doctor Login");
     }
 
-    private void openLogin(ActionEvent event, String role) {
+    @FXML
+    private void handleHRSelection(ActionEvent event) {
+        // Now HR goes to Login, NOT the hiring form!
+        goToLogin(event, "HR Login");
+    }
+
+    @FXML
+    private void onStaffSelected(ActionEvent event) {
+        goToLogin(event, "Staff Login");
+    }
+
+    // This is your "Universal Mover" method
+    private void switchToScene(ActionEvent event, String fxmlPath, String title) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/login-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
-
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // 1. Set the scene
             stage.setScene(new Scene(root));
-
-            // 2. FORCE the maximize immediately after setting the scene
-            stage.setMaximized(true);
-
+            stage.setTitle(title);
+            stage.setMaximized(true); // Keeps your window full screen
             stage.show();
         } catch (IOException e) {
-            System.err.println("Error loading login view!");
+            System.err.println("Could not find: " + fxmlPath);
+            e.printStackTrace();
         }
     }
-
 }

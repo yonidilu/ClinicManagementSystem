@@ -13,15 +13,15 @@
 
     <Label text="Clinic Patient Registry" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
 
-    <VBox spacing="10" alignment="CENTER" maxWidth="850" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-border-color: #dcdde1; -fx-border-radius: 5;">
+    <VBox spacing="10" alignment="CENTER" maxWidth="950" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-border-color: #dcdde1; -fx-border-radius: 5;">
         <Label text="Patient Registration &amp; Update" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
 
         <GridPane hgap="20" vgap="12" alignment="CENTER">
             <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
                 <Label text="Personal Details" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d; -fx-font-size: 12;"/>
-                <TextField fx:id="patientNameField" promptText="Patient's Full Name"/>
+                <TextField fx:id="nameField" promptText="Patient's Full Name"/>
                 <TextField fx:id="genderField" promptText="Gender"/>
-                <TextField fx:id="ailmentField" promptText="Date of Birth"/>
+                <TextField fx:id="dobField" promptText="Date of Birth"/>
                 <TextField fx:id="contactField" promptText="Contact Number"/>
             </VBox>
 
@@ -37,12 +37,12 @@
                 <Label text="Administrative" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d; -fx-font-size: 12;"/>
                 <TextField fx:id="faydaField" promptText="ID"/>
                 <TextField fx:id="apptDateField" promptText="Appointment Date"/>
-                <TextField fx:id="paymentField" promptText="Paid Amount"/>
+                <TextField fx:id="paidAmountField" promptText="Paid Amount"/>
                 <TextField fx:id="statusField" promptText="Status (Waiting, etc.)"/>
             </VBox>
         </GridPane>
 
-        <Button fx:id="registerButton" text="Add Patient" onAction="#onRegisterButtonClick"
+        <Button fx:id="registerButton" text="Add Patient" onAction="#handleAddPatient"
                 maxWidth="400" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;">
             <VBox.margin>
                 <Insets top="10"/>
@@ -54,20 +54,23 @@
 
     <TextField fx:id="searchField" promptText="Search patients by name or ID..." maxWidth="800"/>
 
-    <TableView fx:id="patientTable" prefHeight="300" prefWidth="800">
+    <TableView fx:id="patientTable" prefHeight="300" prefWidth="900">
         <columns>
-            <TableColumn fx:id="faydaColumn" text="ID" prefWidth="100" />
+            <TableColumn fx:id="faydaColumn" text="ID" prefWidth="80" />
             <TableColumn fx:id="nameColumn" text="Patient Name" prefWidth="120" />
-            <TableColumn fx:id="dobColumn" text="Date of Birth" prefWidth="120" />
-            <TableColumn fx:id="genderColumn" text="Gender" prefWidth="80" />
-            <TableColumn fx:id="contactColumn" text="Contact" prefWidth="120" />
-            <TableColumn fx:id="statusColumn" text="Status" prefWidth="100" />
+            <TableColumn fx:id="dobColumn" text="Date of Birth" prefWidth="100" />
+            <TableColumn fx:id="genderColumn" text="Gender" prefWidth="70" />
+            <TableColumn fx:id="contactColumn" text="Contact" prefWidth="110" />
+            <TableColumn fx:id="doctorColumn" text="Assigned Doctor" prefWidth="120" />
+            <TableColumn fx:id="lastVisitColumn" text="Last Visit" prefWidth="100" />
+            <TableColumn fx:id="balanceColumn" text="Balance" prefWidth="90" />
+            <TableColumn fx:id="statusColumn" text="Status" prefWidth="90" />
             <TableColumn fx:id="regDateColumn" text="Reg. Date" prefWidth="100" />
         </columns>
     </TableView>
 
     <HBox spacing="15" alignment="CENTER">
-        <Button text="Remove Selected" onAction="#onDeleteButtonClick" style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
+        <Button text="Remove Selected" onAction="#handleRemoveSelected" style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
         <Button text="View Details" onAction="#onShowDetails" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
         <Button text="Edit Selected" onAction="#onEditButtonClick" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
     </HBox>
@@ -75,12 +78,9 @@
         <Button text="Billing" onAction="#onBillingButtonClick"
                 style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold;"/>
         <Button fx:id="viewHistoryBtn" text="View Medical History"
-                onAction="#handleViewHistory" maxWidth="Infinity"
-                style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
-
+                onAction="#handleViewHistory" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
         <Button text="Logout" onAction="#handleLogout" style="-fx-background-color: #7f8c8d; -fx-text-fill: white;" />
     </HBox>
-
 
     <Label fx:id="countLabel" text="Total Patients: 0" style="-fx-font-italic: true;"/>
 </VBox>

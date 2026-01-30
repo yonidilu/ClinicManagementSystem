@@ -6,9 +6,18 @@
       fx:controller="com.clinic.controller.ChoiceController"
       style="-fx-padding: 50; -fx-background-color: #2c3e50;">
 
-    <Label text="Clinic Management System" style="-fx-font-size: 22px; -fx-text-fill: white; -fx-font-weight: bold;"/>
-    <Label text="Please select your role:" style="-fx-text-fill: #bdc3c7;"/>
+    <Label text="Clinic Management System"
+           style="-fx-font-size: 22px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+    <Label text="Please select your role:"
+           style="-fx-text-fill: #bdc3c7;"/>
 
-    <Button text="Doctor (Admin)" onAction="#onDoctorSelected" prefWidth="200" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
-    <Button text="Clinic Staff" onAction="#onStaffSelected" prefWidth="200" style="-fx-background-color: #9b59b6; -fx-text-fill: white;"/>
-    </VBox>
+    <Button text="Doctor (Admin)" onAction="#handleDoctorSelection"
+            prefWidth="200" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+
+    <Button text="Clinic Staff" onAction="#onStaffSelected"
+            prefWidth="200" style="-fx-background-color: #9b59b6; -fx-text-fill: white;"/>
+
+    <Button fx:id="btnHRPortal" text="Clinic HR / Hiring" onAction="#handleHRSelection"
+            prefWidth="200" style="-fx-background-color: #8e44ad; -fx-text-fill: white; -fx-font-weight: bold;"/>
+
+</VBox>

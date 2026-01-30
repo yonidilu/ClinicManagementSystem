@@ -114,7 +114,7 @@ public class BillingController {
 
             System.out.println("UI DEBUG: Table updated for " + currentPatient.getName());
             // 3. Update the local patient object so the Main Table sees the change
-            currentPatient.setPayment(amount);
+            currentPatient.setPaymentAmount(amount);
             currentPatient.setStatus(status);
 
             System.out.println("Success! Database updated for " + currentPatient.getName());

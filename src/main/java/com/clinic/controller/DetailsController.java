@@ -34,11 +34,11 @@ public class DetailsController {
             fullNameLabel.setText(patient.getName());
             dobLabel.setText(patient.getDob());
             idLabel.setText(patient.getFayda());
-            doctorLabel.setText(patient.getDoctorName());
+            doctorLabel.setText(patient.getAssignedDoctor());
             diagnosisLabel.setText(patient.getDiagnosis());
             treatmentLabel.setText(patient.getTreatment());
-            appointmentLabel.setText(patient.getApptDate());
-            paymentLabel.setText(patient.getPayment());
+            appointmentLabel.setText(patient.getAppointmentDate());
+            paymentLabel.setText(patient.getPaymentStatus());
         }
     }
 

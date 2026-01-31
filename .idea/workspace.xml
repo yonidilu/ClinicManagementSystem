@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f4e769a8-2ec0-4742-b6be-5c9ea3185361" name="Changes" comment="feat: implement RBAC, schema updates, and PDF reporting&#10;&#10;- Integrated Role-Based Access Control (RBAC) with HR and Doctor roles.&#10;- Updated database schema to include last_visit, reg_date, and payment attributes.&#10;- Added PDF generation for medical history and payment receipts.&#10;- Fixed NullPointerException in patient status handling and improved data persistence.">
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/BillingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/BillingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/MainController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/model/DatabaseManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/model/DatabaseManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/model/Patient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/model/Patient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/choice-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/choice-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/main-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/main-view.fxml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Pull.Settings">
+    <option name="OPTIONS">
+      <set>
+        <option value="REBASE" />
+      </set>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;yonidilu&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/yonidilu/ClinicManagementSystem.git&quot;,
+    &quot;accountId&quot;: &quot;e81393e9-2393-4ba3-8b90-ddf4d598f044&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="38wrLCj6W6Vf2IbdqMsTVSnbxQO" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.Main.executor&quot;: &quot;Debug&quot;,
+    &quot;Application.RunClinic.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="RunClinic" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="com.clinic.Main" />
+      <module name="ClinicManagementSystem" />
+      <option name="VM_PARAMETERS" value="--module-path &quot;C:\javafx-sdk-25.0.1\lib&quot; --add-modules javafx.controls,javafx.fxml --enable-native-access=ALL-UNNAMED --enable-native-access=javafx.graphics,ALL-UNNAMED --enable-native-access=javafx.graphics,ALL-UNNAMED" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.27397.103" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f4e769a8-2ec0-4742-b6be-5c9ea3185361" name="Changes" comment="" />
+      <created>1769721417346</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1769721417346</updated>
+    </task>
+    <task id="LOCAL-00001" summary="fix: evicted the OneDrive ghost and gave the database a memory&#10;&#10;Finally made the &quot;Paid&quot; status stick after 5,000 restarts.&#10;&#10;Renamed variables so the code actually talks to itself correctly.&#10;it now has billing system, and patient medical history!&#10;&#10;If this breaks again, I’m becoming a farmer... you think i'm joking!?">
+      <option name="closed" value="true" />
+      <created>1769725397639</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1769725397639</updated>
+    </task>
+    <task id="LOCAL-00002" summary="feat: implement RBAC, schema updates, and PDF reporting&#10;&#10;- Integrated Role-Based Access Control (RBAC) with HR and Doctor roles.&#10;- Updated database schema to include last_visit, reg_date, and payment attributes.&#10;- Added PDF generation for medical history and payment receipts.&#10;- Fixed NullPointerException in patient status handling and improved data persistence.">
+      <option name="closed" value="true" />
+      <created>1769787734344</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1769787734344</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+    <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="fix: evicted the OneDrive ghost and gave the database a memory&#10;&#10;Finally made the &quot;Paid&quot; status stick after 5,000 restarts.&#10;&#10;Renamed variables so the code actually talks to itself correctly.&#10;it now has billing system, and patient medical history!&#10;&#10;If this breaks again, I’m becoming a farmer... you think i'm joking!?" />
+    <MESSAGE value="feat: implement RBAC, schema updates, and PDF reporting&#10;&#10;- Integrated Role-Based Access Control (RBAC) with HR and Doctor roles.&#10;- Updated database schema to include last_visit, reg_date, and payment attributes.&#10;- Added PDF generation for medical history and payment receipts.&#10;- Fixed NullPointerException in patient status handling and improved data persistence." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: implement RBAC, schema updates, and PDF reporting&#10;&#10;- Integrated Role-Based Access Control (RBAC) with HR and Doctor roles.&#10;- Updated database schema to include last_visit, reg_date, and payment attributes.&#10;- Added PDF generation for medical history and payment receipts.&#10;- Fixed NullPointerException in patient status handling and improved data persistence." />
+  </component>
+</project>

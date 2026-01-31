@@ -1,0 +1,12 @@
+==================================
+       CLINIC PAYMENT RECEIPT     
+==================================
+Transaction ID: TXN-1769703296506
+Patient Name:   Neyo Chis
+Patient ID:     CLN-531086
+Date:           2026-01-29
+----------------------------------
+Amount Paid:    $150.00
+Status:         Paid
+==================================
+   Thank you for your visit!      

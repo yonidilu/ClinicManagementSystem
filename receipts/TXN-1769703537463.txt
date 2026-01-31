@@ -1,0 +1,12 @@
+==================================
+       CLINIC PAYMENT RECEIPT     
+==================================
+Transaction ID: TXN-1769703537463
+Patient Name:   Sara Getachew
+Patient ID:     PT-24110
+Date:           2026-01-29
+----------------------------------
+Amount Paid:    $0.00
+Status:         Pending
+==================================
+   Thank you for your visit!      

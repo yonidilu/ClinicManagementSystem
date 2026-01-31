@@ -47,7 +47,6 @@ public class LoginController {
             errorLabel.setText("Invalid credentials!");
         }
     }
-
     // A helper method to keep your code clean and dry
     private void switchToScene(ActionEvent event, String fxmlPath, String title) {
         try {

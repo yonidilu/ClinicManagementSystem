@@ -62,6 +62,9 @@ public class DatabaseManager {
                     "FOREIGN KEY(patient_id) REFERENCES patients(fayda), " +
                     "FOREIGN KEY(doctor_id) REFERENCES doctors(doctor_id));");
 
+            // Ensure fayda is the unique key we use for everything
+            stmt.execute("CREATE TABLE IF NOT EXISTS patients (fayda TEXT PRIMARY KEY, name TEXT);");
+
             stmt.execute("CREATE TABLE IF NOT EXISTS inventory (" +
                     "inventory_id INTEGER PRIMARY KEY AUTOINCREMENT, item_name TEXT, " +
                     "quantity INTEGER, expiration_date TEXT);");
@@ -98,43 +101,36 @@ public class DatabaseManager {
         List<Patient> list = new ArrayList<>();
         String sql = "SELECT * FROM patients";
 
-        try (Connection conn = connect(); // Using your existing connect() method
+        try (Connection conn = connect();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                // 1. Create the patient using the primary constructor
-                Patient p = new Patient(
-                        rs.getString("name"),
-                        rs.getString("dob"),
-                        rs.getString("gender"),
-                        rs.getString("contact"),
-                        rs.getString("status"),
-                        rs.getString("fayda"),
-                        rs.getString("doctor_name"),
-                        rs.getString("diagnosis"),
-                        rs.getString("treatment"),
-                        rs.getString("prescription"),
-                        rs.getString("appt_date"),
-                        rs.getString("payment"),
-                        rs.getString("reg_date")
-                );
+                Patient p = new Patient();
 
-                // 2. Map the "Problem" columns safely
-                // Using a helper or checking if column exists prevents the 'no such column' crash
-                try {
-                    p.setLastVisit(rs.getString("last_visit"));
-                    p.setPaymentAmount(rs.getString("payment_amount"));
-                    p.setPaymentStatus(rs.getString("payment_status"));
-                    p.setBalanceOwed(rs.getDouble("balance_owed"));
-                } catch (SQLException e) {
-                    // If these columns aren't found, we log it but don't stop the app!
-                    System.out.println("Note: Some optional columns were not found in the result set.");
-                }
+                // 1. Loading basic info
+                p.setName(rs.getString("name"));
+                p.setFayda(rs.getString("fayda"));
+                p.setAssignedDoctor(rs.getString("doctor_name"));
+                p.setPaymentStatus(rs.getString("status"));
+                p.setDob(rs.getString("dob"));
+                p.setGender(rs.getString("gender"));
+                p.setContact(rs.getString("contact"));
+
+                // 2. Loading medical records (The ones that were "disappearing")
+                p.setDiagnosis(rs.getString("diagnosis"));
+                p.setTreatment(rs.getString("treatment"));
+                p.setPrescription(rs.getString("prescription"));
+
+                // 3. Loading Administrative/Date info
+                p.setAppointmentDate(rs.getString("appt_date"));
+                p.setRegisteredDate(rs.getString("reg_date"));
+                p.setLastVisit(rs.getString("last_visit")); // Added this to prevent the "disappearing" visit date
+                p.setPaymentAmount(rs.getString("payment"));
+                p.setBalanceOwed(rs.getDouble("balance_owed"));
 
                 list.add(p);
             }
-            System.out.println("LOAD DEBUG: Successfully loaded " + list.size() + " patients.");
         } catch (SQLException e) {
             System.err.println("CRITICAL: Database Load Failed!");
             e.printStackTrace();
@@ -143,10 +139,10 @@ public class DatabaseManager {
     }
 
     public static void savePatient(Patient p) {
-        // 1. Updated SQL to include 'balance_owed' and 'doctor_name'
+        // 1. Added last_visit to the SQL string to match your TableView requirements
         String sql = "INSERT INTO patients (fayda, name, dob, gender, contact, status, " +
                 "doctor_name, diagnosis, treatment, prescription, appt_date, " +
-                "payment, reg_date, balance_owed) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                "payment, reg_date, balance_owed, last_visit) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -157,35 +153,34 @@ public class DatabaseManager {
             pstmt.setString(4, p.getGender());
             pstmt.setString(5, p.getContact());
             pstmt.setString(6, p.getPaymentStatus());
-            pstmt.setString(7, p.getAssignedDoctor()); // From 'doctor_name' field
+            pstmt.setString(7, p.getAssignedDoctor());
             pstmt.setString(8, p.getDiagnosis());
             pstmt.setString(9, p.getTreatment());
             pstmt.setString(10, p.getPrescription());
             pstmt.setString(11, p.getAppointmentDate());
             pstmt.setString(12, p.getPaymentAmount());
-            pstmt.setString(13, p.getRegisteredDate()); // This is also your 'Last Visit'
-
-            // 2. Save the total lab/service costs as the initial balance
+            pstmt.setString(13, p.getRegisteredDate());
             pstmt.setDouble(14, p.getBalanceOwed());
 
+            // 2. Explicitly save the initial visit date
+            pstmt.setString(15, p.getLastVisit());
+
             pstmt.executeUpdate();
-            System.out.println("SAVE SUCCESS: Patient " + p.getName() + " stored in " + URL);
+            System.out.println("SAVE SUCCESS: Patient " + p.getName() + " added to database.");
         } catch (SQLException e) {
-            System.err.println("SAVE ERROR: Could not save patient. Check column names!");
+            System.err.println("SAVE ERROR: Could not save patient. Ensure DB schema matches!");
             e.printStackTrace();
         }
     }
-
     public static void updatePatient(Patient p) {
         String sql = "UPDATE patients SET name=?, dob=?, gender=?, contact=?, status=?, " +
                 "doctor_name=?, diagnosis=?, treatment=?, prescription=?, appt_date=?, " +
                 "payment=?, balance_owed=?, reg_date=?, last_visit=? WHERE fayda=?";
 
-        System.out.println("DEBUG: Saving Patient: " + p.getName() + " | RegDate: " + p.getRegisteredDate());
-
-        try (Connection conn = DriverManager.getConnection(URL);
+        try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
+            // The order MUST match the SQL string above exactly!
             pstmt.setString(1, p.getName());
             pstmt.setString(2, p.getDob());
             pstmt.setString(3, p.getGender());
@@ -198,17 +193,20 @@ public class DatabaseManager {
             pstmt.setString(10, p.getAppointmentDate());
             pstmt.setString(11, p.getPaymentAmount());
             pstmt.setDouble(12, p.getBalanceOwed());
-            pstmt.setString(13, p.getRegisteredDate()); // Map these clearly!
+            pstmt.setString(13, p.getRegisteredDate());
             pstmt.setString(14, p.getLastVisit());
+
+            // 15 is the WHERE clause (fayda)
             pstmt.setString(15, p.getFayda());
 
             int rowsAffected = pstmt.executeUpdate();
-            System.out.println("DEBUG: Rows Updated: " + rowsAffected);
+            System.out.println("Update Status: " + (rowsAffected > 0 ? "Success" : "No patient found with Fayda: " + p.getFayda()));
+
         } catch (SQLException e) {
+            System.err.println("SQL ERROR in updatePatient: " + e.getMessage());
             e.printStackTrace();
         }
     }
-
     // This goes in DatabaseManager.java
     public static void updateBillingInfo(String faydaID, String amount, String status) {
         String sql = "UPDATE patients SET payment_amount = ?, payment_status = ? WHERE fayda = ?";
@@ -249,13 +247,13 @@ public class DatabaseManager {
     }
 
     public static void deletePatient(String fayda) {
-        String sql = "DELETE FROM patients WHERE fayda = ?";
+        String sql = "DELETE FROM patients WHERE fayda = ?"; // Use fayda, not id
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, fayda);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Delete failed: " + e.getMessage());
         }
     }
     public static List<LabResult> getLabResults(String patientId) {

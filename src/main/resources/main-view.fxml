@@ -27,7 +27,7 @@
 
             <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
                 <Label text="Medical Records" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d; -fx-font-size: 12;"/>
-                <TextField fx:id="doctorField" promptText="Assigned Doctor"/>
+                <ComboBox fx:id="doctorComboBox" promptText="Select Doctor" maxWidth="Infinity"/>
                 <TextField fx:id="diagnosisField" promptText="Diagnosis"/>
                 <TextField fx:id="treatmentField" promptText="Treatment"/>
                 <TextField fx:id="prescriptionField" promptText="Medicine Prescription"/>
@@ -61,7 +61,9 @@
             <TableColumn fx:id="dobColumn" text="Date of Birth" prefWidth="100" />
             <TableColumn fx:id="genderColumn" text="Gender" prefWidth="70" />
             <TableColumn fx:id="contactColumn" text="Contact" prefWidth="110" />
-            <TableColumn fx:id="doctorColumn" text="Assigned Doctor" prefWidth="120" />
+
+            <TableColumn fx:id="doctorColumn" text="Doctor" prefWidth="120" />
+
             <TableColumn fx:id="lastVisitColumn" text="Last Visit" prefWidth="100" />
             <TableColumn fx:id="balanceColumn" text="Balance" prefWidth="90" />
             <TableColumn fx:id="statusColumn" text="Status" prefWidth="90" />

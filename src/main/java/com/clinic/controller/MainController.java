@@ -18,6 +18,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -53,12 +54,14 @@ public class MainController {
     @FXML private TextField ailmentField;
     @FXML private TextField faydaField;
     @FXML private TableColumn<Patient, String> regDateColumn;
-    @FXML private TableColumn<Patient, String> doctorColumn;
+    @FXML private ComboBox doctorComboBox; // Remove the <String> temporarily to see if it loads
+    @FXML private TableColumn<Patient, String> doctorColumn; // Ensure this matches your FXML fx:id// This must match the fx:id in Scene Builder/FXML
     @FXML private TableColumn<Patient, String> lastVisitColumn;
     @FXML private TableColumn<Patient, Double> balanceColumn;
     @FXML private TextField nameField;
     @FXML private TextField dobField;
     @FXML private TextField paidAmountField; // This maps to "Balance Owed"
+
 
 
     private boolean isAdmin;
@@ -70,162 +73,185 @@ public class MainController {
 
     @FXML
     public void initialize() {
-        // 1. Setup Initial ID
-        faydaField.setText(generateUniquePatientID());
-        faydaField.setEditable(false);
+        // Use the exact variable name from your Patient class
+        balanceColumn.setCellValueFactory(new PropertyValueFactory<>("balanceOwed"));
 
-        // 2. Wire Columns (Ensuring synchronization with Patient.java)
-        if (nameColumn != null && faydaColumn != null) {
-            // Original Core Columns
+        // 1. Setup Initial ID
+        try {
+            faydaField.setText(generateUniquePatientID());
+            faydaField.setEditable(false);
+        } catch (Exception e) {
+            System.err.println("Error generating ID: " + e.getMessage());
+        }
+
+        // 2. Setup Doctor Dropdown
+        ObservableList<String> doctors = FXCollections.observableArrayList(
+                "Dr. Smith", "Dr. Adams", "Dr. Bekele", "Dr. Taylor"
+        );
+        if (doctorComboBox != null) {
+            doctorComboBox.setItems(doctors);
+        }
+
+        // 3. Wire Columns - CLEANED & UNIFIED
+        if (patientTable != null && nameColumn != null) {
             nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
             dobColumn.setCellValueFactory(cellData -> cellData.getValue().dobProperty());
             faydaColumn.setCellValueFactory(cellData -> cellData.getValue().faydaProperty());
             genderColumn.setCellValueFactory(cellData -> cellData.getValue().genderProperty());
             contactColumn.setCellValueFactory(cellData -> cellData.getValue().contactProperty());
 
-            // FIXED: Mapping the dates to match your new Patient.java getters
+            // These MUST match the variable names in Patient.java exactly
             regDateColumn.setCellValueFactory(new PropertyValueFactory<>("registeredDate"));
             lastVisitColumn.setCellValueFactory(new PropertyValueFactory<>("lastVisit"));
+            balanceColumn.setCellValueFactory(new PropertyValueFactory<>("balanceOwed"));
 
-            // NEW COLUMNS: Doctor and Balance
             doctorColumn.setCellValueFactory(cellData -> cellData.getValue().assignedDoctorProperty());
+            statusColumn.setCellValueFactory(cellData -> cellData.getValue().paymentStatusProperty());
             balanceColumn.setCellValueFactory(cellData -> cellData.getValue().balanceOwedProperty().asObject());
 
-            // Status Column
-            statusColumn.setCellValueFactory(cellData -> cellData.getValue().paymentStatusProperty());
-        } else {
-            System.err.println("Critical Error: Table columns not found in FXML!");
         }
 
-        // 3. Load data from Database
-        DatabaseManager.initializeDatabase();
-        patientList.setAll(DatabaseManager.getAllPatients());
+        // 4. Load data from Database
+        try {
+            DatabaseManager.initializeDatabase();
+            List<Patient> dbPatients = DatabaseManager.getAllPatients();
+            if (dbPatients != null) {
+                patientList.setAll(dbPatients);
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to load patients: " + e.getMessage());
+        }
 
-        // 4. Setup Search Filter
+        // 5. Setup Search Filter (Live Filtering)
         FilteredList<Patient> filteredData = new FilteredList<>(patientList, p -> true);
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
-            filteredData.setPredicate(patient -> {
-                if (newVal == null || newVal.isEmpty()) return true;
-                String filter = newVal.toLowerCase();
-                return patient.getName().toLowerCase().contains(filter) ||
-                        patient.getFayda().toLowerCase().contains(filter);
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, oldVal, newVal) -> {
+                filteredData.setPredicate(patient -> {
+                    if (newVal == null || newVal.isEmpty()) return true;
+                    String filter = newVal.toLowerCase();
+                    return patient.getName().toLowerCase().contains(filter) ||
+                            patient.getFayda().toLowerCase().contains(filter);
+                });
             });
-        });
+        }
 
-        // 5. Bind Table to Data
+        // 6. Bind Table to Filtered Data ONLY (Don't bind twice!)
         patientTable.setItems(filteredData);
         updateCount();
 
-        // 6. Status Cell Styling (Colors)
-        statusColumn.setCellFactory(column -> new TableCell<Patient, String>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item == null || empty) {
-                    setText(null);
-                    setStyle("");
-                } else {
-                    setText(item);
-                    if (item.equalsIgnoreCase("Pending")) {
-                        setStyle("-fx-text-fill: white; -fx-background-color: #e74c3c; -fx-background-radius: 5; -fx-alignment: center;");
-                    } else if (item.equalsIgnoreCase("Paid")) {
-                        setStyle("-fx-text-fill: white; -fx-background-color: #2ecc71; -fx-background-radius: 5; -fx-alignment: center;");
-                    } else if (item.equalsIgnoreCase("Partial")) {
-                        setStyle("-fx-text-fill: black; -fx-background-color: #f1c40f; -fx-background-radius: 5; -fx-alignment: center;");
-                    } else {
+        // 7. Status Cell Styling
+        if (statusColumn != null) {
+            statusColumn.setCellFactory(column -> new TableCell<Patient, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setText(null);
                         setStyle("");
+                    } else {
+                        setText(item);
+                        String baseStyle = "-fx-text-fill: white; -fx-background-radius: 5; -fx-alignment: center; -fx-font-weight: bold;";
+                        if (item.equalsIgnoreCase("Pending")) {
+                            setStyle(baseStyle + "-fx-background-color: #e74c3c;");
+                        } else if (item.equalsIgnoreCase("Paid")) {
+                            setStyle(baseStyle + "-fx-background-color: #2ecc71;");
+                        } else if (item.equalsIgnoreCase("Partial")) {
+                            setStyle("-fx-text-fill: black; -fx-background-color: #f1c40f; -fx-background-radius: 5; -fx-alignment: center; -fx-font-weight: bold;");
+                        } else {
+                            setStyle("");
+                        }
                     }
                 }
-            }
-        });
-    }
-    public void updateCount() {
-        if (countLabel != null) {
-            countLabel.setText(String.valueOf(patientList.size()));
+            });
         }
+
+        // 8. Debug Check
+        if (!patientList.isEmpty()) {
+            System.out.println("DEBUG: First Patient: " + patientList.get(0).getName());
+            System.out.println("DEBUG: Reg Date Value: [" + patientList.get(0).getRegisteredDate() + "]");
+        }
+
     }
     @FXML
     private void handleAddPatient(ActionEvent event) {
         try {
-            // 1. Collect data from your TextFields
-            String name = nameField.getText();
-            String dob = dobField.getText();
-            String gender = genderField.getText();
-            String contact = contactField.getText();
-            String fayda = faydaField.getText();
-            String doctor = doctorField.getText();
-            String diagnosis = diagnosisField.getText();
-            String treatment = treatmentField.getText();
-            String prescription = prescriptionField.getText();
-            String apptDate = apptDateField.getText();
-            String statusText = statusField.getText(); // Renamed to avoid confusion
-
-            // 2. Handle the Money safely
-            double initialBalance = 0.0;
-            String paidText = paidAmountField.getText();
-            if (paidText != null && !paidText.isEmpty()) {
-                initialBalance = Double.parseDouble(paidText);
+            // 1. DATA VALIDATION
+            if (nameField.getText() == null || nameField.getText().trim().isEmpty()) {
+                System.err.println("Validation Failed: Name is empty.");
+                return;
             }
 
-            // 3. Build/Prepare the Patient object
+            // 2. BUILD PATIENT OBJECT
             Patient p = new Patient();
-            p.setName(name);
-            p.setDob(dob);
-            p.setGender(gender);
-            p.setContact(contact);
-            p.setFayda(fayda);
-            p.setAssignedDoctor(doctor);
-            p.setDiagnosis(diagnosis);
-            p.setTreatment(treatment);
-            p.setPrescription(prescription);
-            p.setAppointmentDate(apptDate);
-            p.setPaymentAmount(String.valueOf(initialBalance));
-            p.setBalanceOwed(initialBalance);
+            p.setName(nameField.getText().trim());
+            p.setFayda(faydaField.getText().trim());
+            p.setDob(dobField.getText());
+            p.setGender(genderField.getText());
+            p.setContact(contactField.getText());
+            p.setDiagnosis(diagnosisField.getText());
+            p.setTreatment(treatmentField.getText());
+            p.setPrescription(prescriptionField.getText());
+            p.setAppointmentDate(apptDateField.getText());
 
-            // FIX: The NullPointerException
-            if (statusText == null || statusText.isEmpty()) {
-                p.setPaymentStatus("Pending");
-            } else {
-                p.setPaymentStatus(statusText);
+            String doctor = (String) doctorComboBox.getValue();
+            p.setAssignedDoctor(doctor == null ? "Unassigned" : doctor);
+
+            // Handle Payment logic
+            // Inside handleAddPatient, before DatabaseManager calls:
+            try {
+                String paidText = paidAmountField.getText();
+                if (paidText != null && !paidText.trim().isEmpty()) {
+                    double amount = Double.parseDouble(paidText.trim());
+                    p.setPaymentAmount(String.valueOf(amount)); // For the 'payment' column
+                    p.setBalanceOwed(amount); // For the 'balance_owed' column
+                } else {
+                    p.setPaymentAmount("0.0");
+                    p.setBalanceOwed(0.0);
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid number in Paid Amount field");
+                p.setBalanceOwed(0.0);
             }
 
+            p.setPaymentStatus(statusField.getText() == null || statusField.getText().isEmpty() ? "Pending" : statusField.getText());
+
+            // 3. DATABASE ACTION
             if (isEditMode) {
-                // FIX: The Amnesia Problem
-                // We must retrieve the existing dates from the table selection
                 Patient selected = patientTable.getSelectionModel().getSelectedItem();
                 if (selected != null) {
                     p.setRegisteredDate(selected.getRegisteredDate());
-                    p.setLastVisit(java.time.LocalDate.now().toString()); // Update visit date to today
+                    p.setLastVisit(java.time.LocalDate.now().toString());
+                    DatabaseManager.updatePatient(p); // Uses WHERE fayda=?
                 }
-
-                DatabaseManager.updatePatient(p);
-
-                int selectedIndex = patientTable.getSelectionModel().getSelectedIndex();
-                if (selectedIndex >= 0) {
-                    patientList.set(selectedIndex, p);
-                }
-
-                isEditMode = false;
-                registerButton.setText("Add Patient");
-                registerButton.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white;");
             } else {
-                // Logic for Adding a brand new patient
                 String today = java.time.LocalDate.now().toString();
                 p.setRegisteredDate(today);
                 p.setLastVisit(today);
-
                 DatabaseManager.savePatient(p);
-                patientList.add(p);
             }
 
+            // 4. THE MAGIC REFRESH
+            // Reset the filter so the new patient isn't hidden by an old search term
+            if (searchField != null) {
+                searchField.clear();
+            }
+
+            // Reload list from DB
+            List<Patient> freshData = DatabaseManager.getAllPatients();
+            patientList.setAll(freshData);
+
+            // 5. UI CLEANUP
             clearFields();
             updateCount();
-            patientTable.refresh(); // Force the table to show the new data
+            isEditMode = false;
+            registerButton.setText("Add Patient");
+            registerButton.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white;");
+            faydaField.setText(generateUniquePatientID());
 
-        } catch (NumberFormatException e) {
-            showWarning("Please enter a valid number for the amount.");
+            System.out.println("Success: Patient List updated. Size: " + patientList.size());
+
         } catch (Exception e) {
-            System.err.println("Error in handleAddPatient: " + e.getMessage());
+            System.err.println("CRITICAL ERROR in handleAddPatient: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -233,46 +259,63 @@ public class MainController {
 
     @FXML
     private void onRegisterButtonClick() {
-        // 1. Get text from the UI fields
-        String name = patientNameField.getText();
-        String ailment = ailmentField.getText();
-        String gender = genderField.getText();
-        String contact = contactField.getText();
-        String status = statusField.getText();
-        String fayda = faydaField.getText();
+        try {
+            // Validation
+            if (nameField.getText().trim().isEmpty() || faydaField.getText().trim().isEmpty()) {
+                showWarning("Validation Error", "Name and Fayda ID are required.");
+                return;
+            }
 
-        // Use the new fields we just declared
-        String doctor = doctorField.getText();
-        String diagnosis = diagnosisField.getText();
-        String treatment = treatmentField.getText();
-        String prescription = prescriptionField.getText();
-        String apptDate = apptDateField.getText();
-        String payment = paymentField.getText();
-        String regDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            Patient p = new Patient();
+            p.setName(nameField.getText());
+            p.setFayda(faydaField.getText());
+            p.setGender(genderField.getText());
+            p.setContact(contactField.getText());
+            p.setAssignedDoctor(doctorComboBox.getValue() != null ? (String)doctorComboBox.getValue() : "Unassigned");
+            p.setDiagnosis(diagnosisField.getText());
+            p.setTreatment(treatmentField.getText());
+            p.setPaymentStatus(statusField.getText().isEmpty() ? "Pending" : statusField.getText());
+
+            String today = LocalDate.now().toString();
+
+            if (isEditMode) {
+                // 1. Get the patient currently selected in the TableView
+                Patient selected = patientTable.getSelectionModel().getSelectedItem();
+
+                if (selected != null) {
+                    p.setId(selected.getId());
+                    p.setRegisteredDate(selected.getRegisteredDate());
+
+                    if (dobField.getText() == null || dobField.getText().trim().isEmpty()) {
+                        p.setDob(selected.getDob());
+                    } else {
+                        p.setDob(dobField.getText());
+                    }
+
+                    p.setRegisteredDate(selected.getRegisteredDate());
+                    p.setLastVisit(java.time.LocalDate.now().toString());
+
+                    DatabaseManager.updatePatient(p);
+                    p.setLastVisit(java.time.LocalDate.now().toString());
+
+                    DatabaseManager.updatePatient(p);
 
 
+                    refreshTable();
+                    System.out.println("Update Complete: " + p.getName() + " (ID: " + p.getId() + ")");
+                }
 
-        Patient p = new Patient(name, ailment, gender, contact, status, fayda,
-                doctor, diagnosis, treatment, prescription, apptDate, payment, regDate);
-
-        if (registerButton.getText().equals("Save Changes")) {
-            // This calls the update logic that forces a disk save
-            DatabaseManager.updatePatient(p);
-
-            // Refresh the table locally so you see the change immediately
-            patientList.removeIf(patient -> patient.getFayda().equals(p.getFayda()));
-            patientList.add(p);
-
-            registerButton.setText("Add Patient");
+                // Reset the UI state
+                isEditMode = false;
+                registerButton.setText("Add Patient");
+                registerButton.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white;");
+                clearFields();
+            }
             clearFields();
+            patientTable.refresh();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        else {
-            // ... (Your existing save logic)
-            DatabaseManager.savePatient(p);
-            patientList.add(p);
-            clearFields();
-        }
-
     }
     @FXML
     private void onShowDetails(ActionEvent event) {
@@ -349,45 +392,40 @@ public class MainController {
         dobField.clear(); // Changed from ailmentField to match FXML
         genderField.clear();
         contactField.clear();
-        doctorField.clear();
         diagnosisField.clear();
         treatmentField.clear();
         prescriptionField.clear();
         apptDateField.clear();
         paidAmountField.clear();
         statusField.clear();
+        doctorComboBox.setValue(null);
 
         faydaField.setText(generateUniquePatientID());
     }
     @FXML
     private void onEditButtonClick(ActionEvent event) {
         Patient selected = patientTable.getSelectionModel().getSelectedItem();
-
         if (selected != null) {
-            // Personal Details
+            // PERSONAL
             nameField.setText(selected.getName());
             genderField.setText(selected.getGender());
-            dobField.setText(selected.getDob()); // Ensure this matches FXML fx:id
+            dobField.setText(selected.getDob()); // FIX: Loads the DOB into the box
             contactField.setText(selected.getContact());
 
-            // Medical Records
-            doctorField.setText(selected.getAssignedDoctor());
+            // MEDICAL
             diagnosisField.setText(selected.getDiagnosis());
             treatmentField.setText(selected.getTreatment());
             prescriptionField.setText(selected.getPrescription());
 
-            // Administrative
+            // ADMIN
             faydaField.setText(selected.getFayda());
+            faydaField.setEditable(false); // Don't allow changing Fayda during edit
             apptDateField.setText(selected.getAppointmentDate());
-            paidAmountField.setText(String.valueOf(selected.getBalanceOwed())); // Fix: mapping payment
             statusField.setText(selected.getPaymentStatus());
+            doctorComboBox.setValue(selected.getAssignedDoctor());
 
-            // Toggle to Update Mode
             isEditMode = true;
             registerButton.setText("Update Patient");
-            registerButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white;");
-        } else {
-            showWarning("Please select a patient from the table first!");
         }
     }
     @FXML
@@ -517,25 +555,35 @@ public class MainController {
 
     @FXML
     private void handleRemoveSelected(ActionEvent event) {
-        // 1. Check if anyone is even selected first
+        // 1. Get the selected patient
         Patient selected = patientTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showWarning("Please select a patient to remove.");
+            showWarning("Error","Please select a patient to remove.");
             return;
         }
 
-        // 2. Create the "Are you sure?" popup
+        // 2. Setup the "Are you sure?" confirmation
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirm Deletion");
-        confirm.setHeaderText("Delete Patient Record");
-        confirm.setContentText("Are you sure you want to permanently delete " + selected.getName() + "?");
+        confirm.setHeaderText("Delete Patient: " + selected.getName());
+        confirm.setContentText("This will permanently remove Fayda ID: " + selected.getFayda());
 
-        // 3. ONLY delete if the user clicks OK
         java.util.Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            deletePatientFromDatabase(selected); // Permanently remove from SQL
-            patientTable.getItems().remove(selected); // Remove from the visible list
-            System.out.println("User confirmed deletion.");
+            try {
+                // 3. FIX: Delete from SQL using 'fayda' to avoid the "no such column: id" error
+                DatabaseManager.deletePatient(selected.getFayda());
+
+                // 4. FIX: Handle the UI list. Wrap it in a new list to prevent 'UnsupportedOperationException'
+                ObservableList<Patient> items = FXCollections.observableArrayList(patientTable.getItems());
+                items.remove(selected);
+                patientTable.setItems(items);
+
+                System.out.println("SUCCESS: Removed " + selected.getName() + " from DB and UI.");
+            } catch (Exception e) {
+                System.err.println("CRITICAL: Removal failed! " + e.getMessage());
+                e.printStackTrace();
+            }
         } else {
             System.out.println("Deletion canceled by user.");
         }
@@ -582,18 +630,18 @@ public class MainController {
     private void handleBilling(ActionEvent event) {
         Patient selected = patientTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showWarning("Please select a patient for billing.");
+            showWarning("Error","Please select a patient for billing.");
             return;
         }
         // Your logic to open the billing window
     }
 
-    private void showWarning(String message) {
+    private void showWarning(String header, String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Selection Required");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait(); // <--- This makes it pop up!
+        alert.setTitle("Clinic System Warning");
+        alert.setHeaderText(header);   // Now it uses the first argument
+        alert.setContentText(message); // Now it uses the second argument
+        alert.showAndWait();
     }
     private void deletePatientFromDatabase(Patient patient) {
         // This SQL command targets the specific patient by their ID
@@ -623,6 +671,13 @@ public class MainController {
         updateCount();
 
         System.out.println("UI: Table refreshed with " + updatedList.size() + " patients.");
+    }
+    public void updateCount() {
+        if (countLabel != null && patientList != null) {
+            countLabel.setText(String.valueOf(patientList.size()));
+        } else {
+            System.err.println("DEBUG: Cannot update count - countLabel or patientList is null.");
+        }
     }
 
 

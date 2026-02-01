@@ -67,8 +67,17 @@
     "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "GitStage.ChangesTree.GroupingKeys": [
+      "directory",
+      "module",
+      "repository"
+    ]
   }
 }]]></component>
   <component name="RunManager">
@@ -96,7 +105,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1769721417346</updated>
-      <workItem from="1769960509899" duration="274000" />
+      <workItem from="1769960509899" duration="587000" />
     </task>
     <task id="LOCAL-00001" summary="fix: evicted the OneDrive ghost and gave the database a memory&#10;&#10;Finally made the &quot;Paid&quot; status stick after 5,000 restarts.&#10;&#10;Renamed variables so the code actually talks to itself correctly.&#10;it now has billing system, and patient medical history!&#10;&#10;If this breaks again, I’m becoming a farmer... you think i'm joking!?">
       <option name="closed" value="true" />
@@ -114,7 +123,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769787734344</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="feat: implement RBAC, schema updates, and PDF reporting&#10;&#10;- Integrated Role-Based Access Control (RBAC) with HR and Doctor roles.&#10;- Updated database schema to include last_visit, reg_date, and payment attributes.&#10;- Added PDF generation for medical history and payment receipts.&#10;- Fixed NullPointerException in patient status handling and improved data persistence.">
+      <option name="closed" value="true" />
+      <created>1769960869789</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1769960869789</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

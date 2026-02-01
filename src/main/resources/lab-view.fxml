@@ -5,14 +5,14 @@
 <VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.clinic.controller.LabController" style="-fx-padding: 20;">
 
-    <Label text="Patient Lab History" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+    <Label text="Patient Lab History" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
     <Label fx:id="patientInfoLabel" text="Patient: [Name] (ID: [ID])" />
 
     <TableView fx:id="labTable" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="testColumn" text="Test Name" prefWidth="150"/>
-            <TableColumn fx:id="resultColumn" text="Result" prefWidth="150"/>
-            <TableColumn fx:id="dateColumn" text="Date" prefWidth="100"/>
+            <TableColumn fx:id="testColumn" text="Test Name" prefWidth="160"/>
+            <TableColumn fx:id="resultColumn" text="Result" prefWidth="160"/>
+            <TableColumn fx:id="dateColumn" text="Date" prefWidth="110"/>
         </columns>
     </TableView>
 

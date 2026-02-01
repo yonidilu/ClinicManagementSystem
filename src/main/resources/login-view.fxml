@@ -4,7 +4,8 @@
 
 <VBox alignment="CENTER" spacing="15.0" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.clinic.controller.LoginController"
-      style="-fx-padding: 40; -fx-background-color: #34495e;">
+      stylesheets="@login-style.css"
+      styleClass="choice-root">
 
     <Label fx:id="roleLabel" text="Login" style="-fx-font-size: 20px; -fx-text-fill: white; -fx-font-weight: bold;"/>
 

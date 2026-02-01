@@ -10,9 +10,9 @@
 
     <TableView fx:id="labTable" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="testColumn" text="Test Name" prefWidth="160"/>
-            <TableColumn fx:id="resultColumn" text="Result" prefWidth="160"/>
-            <TableColumn fx:id="dateColumn" text="Date" prefWidth="110"/>
+            <TableColumn fx:id="testColumn" text="Test Name" prefWidth="150"/>
+            <TableColumn fx:id="resultColumn" text="Result" prefWidth="150"/>
+            <TableColumn fx:id="dateColumn" text="Date" prefWidth="100"/>
         </columns>
     </TableView>
 

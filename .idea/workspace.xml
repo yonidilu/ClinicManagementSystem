@@ -4,11 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f4e769a8-2ec0-4742-b6be-5c9ea3185361" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="f4e769a8-2ec0-4742-b6be-5c9ea3185361" name="Changes" comment="feat: standardize patient registration and fix data persistence&#10;&#10;Fix bug where patient credentials cleared during edit/restart cycles.&#10;&#10;Convert doctor input from TextField to ComboBox (dropdown) for data consistency.&#10;&#10;Resolve mapping issues for 'Last Visit' and 'Registration Date' columns in TableView.&#10;&#10;Update DatabaseManager to use fayda(in this case, the cilinic given unique ID) as the primary key for updates.">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/clinic/AppLauncher.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LabReport_Neyo_Chis.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Medical_Report_PT-26962.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/BillingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/BillingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/ChoiceController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/ChoiceController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/DetailsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/DetailsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/EHRController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/EHRController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/HRController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/HRController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/HRDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/HRDashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/LabController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/LabController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/LoginController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/MainController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/model/DatabaseManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/model/DatabaseManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/model/LabResult.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/model/LabResult.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/model/Patient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/model/Patient.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +82,8 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;
   }
 }</component>
   <component name="RunManager">

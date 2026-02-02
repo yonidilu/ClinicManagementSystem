@@ -20,10 +20,6 @@ public class HRController {
     @FXML private PasswordField newDoctorPass;
     @FXML private Label statusLabel;
 
-    /**
-     * Handles the "Register New Hire" button click.
-     * It saves the credentials specifically with the "DOCTOR" role.
-     */
     @FXML
     private void handleHireDoctor() {
         String username = newDoctorUser.getText();
@@ -35,7 +31,6 @@ public class HRController {
             return;
         }
 
-        // Using your existing DatabaseManager to save the user
         boolean success = DatabaseManager.registerUser(username, password, "DOCTOR");
 
         if (success) {
@@ -49,9 +44,6 @@ public class HRController {
         }
     }
 
-    /**
-     * Sends the HR user back to the initial Choice View.
-     */
     @FXML
     private void handleGoBack(ActionEvent event) {
         try {

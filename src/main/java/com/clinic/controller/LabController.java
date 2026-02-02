@@ -6,8 +6,8 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import java.time.LocalDate;
-import com.clinic.model.LabResult; // This connects the Controller to your Model class
-import com.clinic.model.DatabaseManager; // Connects to your database logic
+import com.clinic.model.LabResult; // This connects the Controller to Model class
+import com.clinic.model.DatabaseManager; // Connects to database logic
 import javafx.collections.FXCollections; // Required for TableView items
 import java.util.List; // Required for the list of results
 import java.util.Optional;
@@ -25,12 +25,6 @@ import com.itextpdf.layout.element.Table;
 
 import javafx.stage.FileChooser;
 import java.io.File;
-// You might also need these for the PDF logic we added earlier:
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
 
 public class LabController {
     @FXML private TableColumn<LabResult, String> testColumn;
@@ -81,7 +75,6 @@ public class LabController {
         String selectedTest = testComboBox.getValue(); // Get value from dropdown
         String resultVal = resultInput.getText();
 
-        // Validation: Ensure both are filled
         if (selectedTest == null || resultVal.isEmpty()) {
             System.out.println("Please select a test and enter a result!");
             return;
@@ -130,13 +123,13 @@ public class LabController {
     private void handlePrintPDF() {
         if (currentPatient == null) return;
 
-        // 1. Setup the File Selection Window
+        //Setup the File Selection Window
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Lab Report");
         fileChooser.setInitialFileName("LabReport_" + currentPatient.getName().replace(" ", "_") + ".pdf");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
 
-        // 2. Show the "Save" dialog
+        //Show the "Save" dialog
         File file = fileChooser.showSaveDialog(labTable.getScene().getWindow());
 
         if (file != null) {
@@ -157,7 +150,6 @@ public class LabController {
                 table.addCell("Result");
                 table.addCell("Date");
 
-                // This loop now works perfectly thanks to TableView<LabResult>!
                 for (LabResult res : labTable.getItems()) {
                     table.addCell(res.getTestName());
                     table.addCell(res.getResultValue());

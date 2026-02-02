@@ -13,19 +13,18 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-// NEW: The correct Image import for JavaFX
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import javax.swing.*;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-
 import static com.clinic.model.DatabaseManager.generateUniquePatientID;
+
+
 public class MainController {
     @FXML private TableColumn<Patient, String> nameColumn;
     @FXML private TableColumn<Patient, String> dobColumn;
@@ -43,7 +42,6 @@ public class MainController {
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private Label errorLabel;
-
     @FXML private TextField apptDateField;
     @FXML private TextField paymentField;
     @FXML private Button registerButton;
@@ -54,15 +52,13 @@ public class MainController {
     @FXML private TextField ailmentField;
     @FXML private TextField faydaField;
     @FXML private TableColumn<Patient, String> regDateColumn;
-    @FXML private ComboBox doctorComboBox; // Remove the <String> temporarily to see if it loads
-    @FXML private TableColumn<Patient, String> doctorColumn; // Ensure this matches your FXML fx:id// This must match the fx:id in Scene Builder/FXML
+    @FXML private ComboBox doctorComboBox;
+    @FXML private TableColumn<Patient, String> doctorColumn;
     @FXML private TableColumn<Patient, String> lastVisitColumn;
     @FXML private TableColumn<Patient, Double> balanceColumn;
     @FXML private TextField nameField;
     @FXML private TextField dobField;
-    @FXML private TextField paidAmountField; // This maps to "Balance Owed"
-
-
+    @FXML private TextField paidAmountField;
 
     private boolean isAdmin;
     private final ObservableList<Patient> patientList = FXCollections.observableArrayList();
@@ -73,10 +69,9 @@ public class MainController {
 
     @FXML
     public void initialize() {
-        // Use the exact variable name from your Patient class
-        balanceColumn.setCellValueFactory(new PropertyValueFactory<>("balanceOwed"));
 
-        // 1. Setup Initial ID
+
+        //Setup Initial ID
         try {
             faydaField.setText(generateUniquePatientID());
             faydaField.setEditable(false);
@@ -84,15 +79,15 @@ public class MainController {
             System.err.println("Error generating ID: " + e.getMessage());
         }
 
-        // 2. Setup Doctor Dropdown
+        //Setup Doctor Dropdown
         ObservableList<String> doctors = FXCollections.observableArrayList(
-                "Dr. Smith", "Dr. Adams", "Dr. Bekele", "Dr. Taylor"
+                "Dr. Smith", "Dr. Adams", "Dr. Bekele", "Dr. Taylor", "Dr. Yonathan", "Dr. Abel"
         );
         if (doctorComboBox != null) {
             doctorComboBox.setItems(doctors);
         }
 
-        // 3. Wire Columns - CLEANED & UNIFIED
+        //Wire Columns - CLEANED & UNIFIED
         if (patientTable != null && nameColumn != null) {
             nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
             dobColumn.setCellValueFactory(cellData -> cellData.getValue().dobProperty());
@@ -100,7 +95,6 @@ public class MainController {
             genderColumn.setCellValueFactory(cellData -> cellData.getValue().genderProperty());
             contactColumn.setCellValueFactory(cellData -> cellData.getValue().contactProperty());
 
-            // These MUST match the variable names in Patient.java exactly
             regDateColumn.setCellValueFactory(new PropertyValueFactory<>("registeredDate"));
             lastVisitColumn.setCellValueFactory(new PropertyValueFactory<>("lastVisit"));
             balanceColumn.setCellValueFactory(new PropertyValueFactory<>("balanceOwed"));
@@ -122,7 +116,7 @@ public class MainController {
             System.err.println("Failed to load patients: " + e.getMessage());
         }
 
-        // 5. Setup Search Filter (Live Filtering)
+        //Setup Search Filter (Live Filtering)
         FilteredList<Patient> filteredData = new FilteredList<>(patientList, p -> true);
         if (searchField != null) {
             searchField.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -134,12 +128,13 @@ public class MainController {
                 });
             });
         }
+        balanceColumn.setCellValueFactory(new PropertyValueFactory<>("balanceOwed"));
 
-        // 6. Bind Table to Filtered Data ONLY (Don't bind twice!)
+        //Bind Table to Filtered Data ONLY
         patientTable.setItems(filteredData);
         updateCount();
 
-        // 7. Status Cell Styling
+        //Status Cell Styling
         if (statusColumn != null) {
             statusColumn.setCellFactory(column -> new TableCell<Patient, String>() {
                 @Override
@@ -165,7 +160,7 @@ public class MainController {
             });
         }
 
-        // 8. Debug Check
+        //Debug Check
         if (!patientList.isEmpty()) {
             System.out.println("DEBUG: First Patient: " + patientList.get(0).getName());
             System.out.println("DEBUG: Reg Date Value: [" + patientList.get(0).getRegisteredDate() + "]");
@@ -175,13 +170,13 @@ public class MainController {
     @FXML
     private void handleAddPatient(ActionEvent event) {
         try {
-            // 1. DATA VALIDATION
+            //DATA VALIDATION
             if (nameField.getText() == null || nameField.getText().trim().isEmpty()) {
                 System.err.println("Validation Failed: Name is empty.");
                 return;
             }
 
-            // 2. BUILD PATIENT OBJECT
+            //BUILD PATIENT OBJECT
             Patient p = new Patient();
             p.setName(nameField.getText().trim());
             p.setFayda(faydaField.getText().trim());
@@ -215,7 +210,7 @@ public class MainController {
 
             p.setPaymentStatus(statusField.getText() == null || statusField.getText().isEmpty() ? "Pending" : statusField.getText());
 
-            // 3. DATABASE ACTION
+            //DATABASE ACTION
             if (isEditMode) {
                 Patient selected = patientTable.getSelectionModel().getSelectedItem();
                 if (selected != null) {
@@ -230,17 +225,16 @@ public class MainController {
                 DatabaseManager.savePatient(p);
             }
 
-            // 4. THE MAGIC REFRESH
-            // Reset the filter so the new patient isn't hidden by an old search term
+            //THE REFRESH
             if (searchField != null) {
                 searchField.clear();
             }
 
-            // Reload list from DB
+            //Reload list from DB
             List<Patient> freshData = DatabaseManager.getAllPatients();
             patientList.setAll(freshData);
 
-            // 5. UI CLEANUP
+            //UI CLEANUP
             clearFields();
             updateCount();
             isEditMode = false;
@@ -279,7 +273,7 @@ public class MainController {
             String today = LocalDate.now().toString();
 
             if (isEditMode) {
-                // 1. Get the patient currently selected in the TableView
+                //Get the patient currently selected in the TableView
                 Patient selected = patientTable.getSelectionModel().getSelectedItem();
 
                 if (selected != null) {
@@ -291,7 +285,6 @@ public class MainController {
                     } else {
                         p.setDob(dobField.getText());
                     }
-
                     p.setRegisteredDate(selected.getRegisteredDate());
                     p.setLastVisit(java.time.LocalDate.now().toString());
 
@@ -299,8 +292,6 @@ public class MainController {
                     p.setLastVisit(java.time.LocalDate.now().toString());
 
                     DatabaseManager.updatePatient(p);
-
-
                     refreshTable();
                     System.out.println("Update Complete: " + p.getName() + " (ID: " + p.getId() + ")");
                 }
@@ -327,9 +318,7 @@ public class MainController {
             alert.show();
             return;
         }
-
         try {
-            // FIXED PATH: Must match src/main/resources/com/clinic/view/
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/details-view.fxml"));
             Parent root = loader.load();
 
@@ -350,9 +339,8 @@ public class MainController {
         String user = usernameField.getText();
         String pass = passwordField.getText();
 
-        // This calls the verifyLogin we set up in DatabaseManager
         if (DatabaseManager.verifyLogin(user, pass)) {
-            System.out.println("Access Granted for Admin778!");
+            System.out.println("Access Granted for Admin");
             openDashboard();
         } else {
             errorLabel.setText("Invalid Credentials!");
@@ -363,7 +351,6 @@ public class MainController {
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
-            // FIXED PATH: Must match src/main/resources/com/clinic/view/
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/login-view.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -375,13 +362,10 @@ public class MainController {
             e.printStackTrace();
         }
     }
-
-
     @FXML
     private void onDeleteButtonClick() {
         Patient selected = patientTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            // FIXES Error in image_89453e.png - Passing String, not Property
             DatabaseManager.deletePatient(selected.getFayda());
             patientList.remove(selected);
             updateCount();
@@ -389,7 +373,7 @@ public class MainController {
     }
     private void clearFields() {
         nameField.clear();
-        dobField.clear(); // Changed from ailmentField to match FXML
+        dobField.clear();
         genderField.clear();
         contactField.clear();
         diagnosisField.clear();
@@ -409,7 +393,7 @@ public class MainController {
             // PERSONAL
             nameField.setText(selected.getName());
             genderField.setText(selected.getGender());
-            dobField.setText(selected.getDob()); // FIX: Loads the DOB into the box
+            dobField.setText(selected.getDob());
             contactField.setText(selected.getContact());
 
             // MEDICAL
@@ -430,20 +414,17 @@ public class MainController {
     }
     @FXML
     private void onBillingButtonClick() {
-        // 1. Get the patient currently selected in the main table
         Patient selected = patientTable.getSelectionModel().getSelectedItem();
 
         if (selected != null) {
             try {
-                // FIXED PATH: Must match src/main/resources/com/clinic/view/
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/billing-view.fxml"));
                 Parent root = loader.load();
 
-                // 3. Connect to the BillingController and pass the patient
                 BillingController billingController = loader.getController();
-                billingController.setPatient(selected);// Uses the method we just fixed!
+                billingController.setPatient(selected);
 
-                // 4. Open the new window
+                //Open the new window
                 Stage stage = new Stage();
                 stage.setTitle("Billing - " + selected.getName());
                 stage.setScene(new Scene(root));
@@ -454,14 +435,13 @@ public class MainController {
                 e.printStackTrace();
             }
         } else {
-            // Simple alert if no patient is clicked
+            // Simple alert
             System.out.println("Please select a patient first!");
         }
     }
     private void openDashboard() {
         try {
-            // Path should match your project structure
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/clinic/view/main-dashboard.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-dashboard.fxml"));
             Parent root = loader.load();
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
@@ -473,13 +453,12 @@ public class MainController {
         }
     }
     @FXML
-    private void handleViewHistory(ActionEvent event) { // Added ActionEvent to match FXML
-        // 1. Get the patient selected in the table
+    private void handleViewHistory(ActionEvent event) {
+        //Get the patient selected in the table
         Patient selectedPatient = patientTable.getSelectionModel().getSelectedItem();
 
         if (selectedPatient != null) {
             try {
-                // Updated path logic to be more robust for Maven/Gradle structures
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/ehr-view.fxml"));
                 Parent root = loader.load();
 
@@ -488,13 +467,16 @@ public class MainController {
                 if (controller != null) {
                     controller.loadPatientData(selectedPatient);
                 } else {
-                    System.err.println("Error: Could not find EHRController!");
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("No Selection");
+                    alert.setHeaderText("Warning");
+                    alert.setContentText("Please select a patient from the table first!");
+                    alert.showAndWait();
                 }
 
-                // 3. Open the new window
+                //Open new windw
                 Stage stage = new Stage();
                 stage.setTitle("Medical History: " + selectedPatient.getName());
-                //stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/history.png")))); // Optional icon
                 stage.setScene(new Scene(root));
                 stage.initModality(Modality.APPLICATION_MODAL);
                 stage.show();
@@ -504,7 +486,6 @@ public class MainController {
                 e.printStackTrace();
             }
         } else {
-            // Use a real alert instead of just a print statement
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("No Selection");
             alert.setHeaderText(null);
@@ -512,23 +493,13 @@ public class MainController {
             alert.showAndWait();
         }
     }
-    // Inside MainController.java
 
     private String currentUserRole;
 
     public void setRole(String role) {
         this.currentUserRole = role;
-
-        // If you have a label that shows who is logged in:
-        // welcomeLabel.setText("Welcome, " + role);
-
-        // This is also where you'd hide certain buttons if the role is 'DOCTOR'
-        System.out.println("MainController: Role set to " + role);
     }
-    // Inside MainController.java
 
-
-    // Reusable Warning Popup
     private void showSelectionWarning() {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Warning");
@@ -537,8 +508,6 @@ public class MainController {
         alert.showAndWait();
     }
 
-
-    // 1. First, create this helper to avoid repeating yourself
     private boolean isPatientSelected(Patient selected) {
         if (selected == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -551,18 +520,16 @@ public class MainController {
         return true;
     }
 
-// 2. Apply it to your buttons
-
     @FXML
     private void handleRemoveSelected(ActionEvent event) {
-        // 1. Get the selected patient
+        //Get the selected patient
         Patient selected = patientTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showWarning("Error","Please select a patient to remove.");
             return;
         }
 
-        // 2. Setup the "Are you sure?" confirmation
+        //Setup the "Are you sure?" confirrmation
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirm Deletion");
         confirm.setHeaderText("Delete Patient: " + selected.getName());
@@ -571,10 +538,10 @@ public class MainController {
         java.util.Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                // 3. FIX: Delete from SQL using 'fayda' to avoid the "no such column: id" error
+                //Delete from SQL using 'fayda' to avoid the "no such column: id" error
                 DatabaseManager.deletePatient(selected.getFayda());
 
-                // 4. FIX: Handle the UI list. Wrap it in a new list to prevent 'UnsupportedOperationException'
+                //Handle the UI list. Wrap it in a new list to prevent 'UnsupportedOperationException'
                 ObservableList<Patient> items = FXCollections.observableArrayList(patientTable.getItems());
                 items.remove(selected);
                 patientTable.setItems(items);
@@ -594,35 +561,25 @@ public class MainController {
         Patient selected = patientTable.getSelectionModel().getSelectedItem();
 
         if (selected != null) {
-            // 1. BACKUP the non-editable data (The memory bank)
             String currentReg = selected.getRegisteredDate();
             String currentVisit = selected.getLastVisit();
             int originalId = selected.getId();
-
-            // 2. UPDATE the object with new info from your UI text fields
-            // (Make sure these field names match your actual FXML IDs)
             selected.setName(nameField.getText());
             selected.setDob(dobField.getText());
-            selected.setGender(genderField.getText());// or genderField.getText()
+            selected.setGender(genderField.getText());
             selected.setContact(contactField.getText());
             selected.setDiagnosis(diagnosisField.getText());
             selected.setTreatment(treatmentField.getText());
-
-            // 3. RESTORE the "Amnesia" fields so they aren't overwritten by null
             selected.setRegisteredDate(currentReg);
             selected.setLastVisit(currentVisit);
             selected.setId(originalId);
 
-            // 4. PERSIST to Database
             DatabaseManager.updatePatient(selected);
-
-            // 5. REFRESH the Table to show changes
             refreshTable();
 
             System.out.println("Update successful for: " + selected.getName());
         } else {
-            // Alert the user if they didn't click a patient first
-            System.out.println("Please select a patient from the table first!");
+            showWarning("Error","Please select a patient for billing.");
         }
     }
 
@@ -633,14 +590,13 @@ public class MainController {
             showWarning("Error","Please select a patient for billing.");
             return;
         }
-        // Your logic to open the billing window
     }
 
     private void showWarning(String header, String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Clinic System Warning");
-        alert.setHeaderText(header);   // Now it uses the first argument
-        alert.setContentText(message); // Now it uses the second argument
+        alert.setHeaderText(header);
+        alert.setContentText(message);
         alert.showAndWait();
     }
     private void deletePatientFromDatabase(Patient patient) {
@@ -650,7 +606,7 @@ public class MainController {
         try (java.sql.Connection conn = com.clinic.model.DatabaseManager.getConnection();
              java.sql.PreparedStatement pstmt = conn.prepareStatement(query)) {
 
-            pstmt.setInt(1, patient.getId()); // Assuming your Patient class has getId()
+            pstmt.setInt(1, patient.getId());
             pstmt.executeUpdate();
 
             System.out.println("Patient " + patient.getName() + " deleted from database.");
@@ -660,14 +616,12 @@ public class MainController {
         }
     }
     private void refreshTable() {
-        // 1. Fetch the latest data from the database
         List<Patient> updatedList = DatabaseManager.getAllPatients();
 
-        // 2. Clear the old list and add the new one
+        //Clear the old list and add the new one
         patientList.clear();
         patientList.addAll(updatedList);
 
-        // 3. Update the UI count label (if you have one)
         updateCount();
 
         System.out.println("UI: Table refreshed with " + updatedList.size() + " patients.");
@@ -679,7 +633,5 @@ public class MainController {
             System.err.println("DEBUG: Cannot update count - countLabel or patientList is null.");
         }
     }
-
-
 }
 

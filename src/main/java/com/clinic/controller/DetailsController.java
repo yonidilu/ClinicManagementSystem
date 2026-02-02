@@ -28,9 +28,7 @@ public class DetailsController {
     public void setPatientData(Patient patient) {
         this.currentPatient = patient;
 
-        // 2. This check prevents crashes if no patient is selected
         if (patient != null) {
-            // These will work now because the labels are properly declared!
             fullNameLabel.setText(patient.getName());
             dobLabel.setText(patient.getDob());
             idLabel.setText(patient.getFayda());
@@ -44,7 +42,6 @@ public class DetailsController {
 
     @FXML
     private void onOpenLabResults(ActionEvent event) {
-        // 3. Now 'currentPatient' will resolve because it's a class variable!
         if (currentPatient != null) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/lab-view.fxml"));

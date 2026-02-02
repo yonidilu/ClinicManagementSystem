@@ -5,18 +5,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.stage.Stage;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseManager {
-    private static final String URL = "jdbc:sqlite:C:/ClinicData/clinic.db";// Standard connection method used by all DB tasks
+    private static final String URL = "jdbc:sqlite:C:/ClinicData/clinic.db";
     private static Connection connect() {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(URL);
-            // Add this line to ensure changes are written immediately
             conn.setAutoCommit(true);
         } catch (SQLException e) {
             System.out.println("Connection failed: " + e.getMessage());
@@ -31,8 +29,6 @@ public class DatabaseManager {
         try (Connection conn = connect();
              Statement stmt = conn.createStatement()) {
 
-            // 1. Create ALL Tables first to avoid foreign key or "missing table" errors
-
             // Patients Table
             stmt.execute("CREATE TABLE IF NOT EXISTS patients (" +
                     "fayda TEXT PRIMARY KEY, name TEXT, dob TEXT, gender TEXT, " +
@@ -40,7 +36,7 @@ public class DatabaseManager {
                     "treatment TEXT, prescription TEXT, appt_date TEXT, payment TEXT, " +
                     "reg_date TEXT, last_visit TEXT, balance_owed REAL DEFAULT 0.0);");
 
-            // Users Table (CRITICAL for login)
+            // Users Table
             stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, " +
                     "password TEXT, role TEXT);");
@@ -62,14 +58,14 @@ public class DatabaseManager {
                     "FOREIGN KEY(patient_id) REFERENCES patients(fayda), " +
                     "FOREIGN KEY(doctor_id) REFERENCES doctors(doctor_id));");
 
-            // Ensure fayda is the unique key we use for everything
+            // fayda is the unique key we use for everything
             stmt.execute("CREATE TABLE IF NOT EXISTS patients (fayda TEXT PRIMARY KEY, name TEXT);");
 
             stmt.execute("CREATE TABLE IF NOT EXISTS inventory (" +
                     "inventory_id INTEGER PRIMARY KEY AUTOINCREMENT, item_name TEXT, " +
                     "quantity INTEGER, expiration_date TEXT);");
 
-            // 2. RUN PATCHES (For existing databases missing columns)
+            //RUN PATCHES
             String[] patches = {
                     "ALTER TABLE patients ADD COLUMN payment_status TEXT;",
                     "ALTER TABLE patients ADD COLUMN payment_amount TEXT;",
@@ -80,13 +76,11 @@ public class DatabaseManager {
             for (String patch : patches) {
                 try {
                     stmt.execute(patch);
-                } catch (SQLException e) {
-                    // Column likely exists already; ignore safely
-                }
+                } catch (SQLException e) {}
             }
 
-            // 3. SEED USERS (The Master Keys)
-            // We use INSERT OR IGNORE so it won't crash if they already exist
+            // (The Master Keys)
+            // We used INSERT OR IGNORE so it won't crash if they already exist
             stmt.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('doc123', 'admin', 'DOCTOR');");
             stmt.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('hr123', 'admin', 'HR');");
 
@@ -108,7 +102,7 @@ public class DatabaseManager {
             while (rs.next()) {
                 Patient p = new Patient();
 
-                // 1. Loading basic info
+                //Loading basic info
                 p.setName(rs.getString("name"));
                 p.setFayda(rs.getString("fayda"));
                 p.setAssignedDoctor(rs.getString("doctor_name"));
@@ -116,16 +110,12 @@ public class DatabaseManager {
                 p.setDob(rs.getString("dob"));
                 p.setGender(rs.getString("gender"));
                 p.setContact(rs.getString("contact"));
-
-                // 2. Loading medical records (The ones that were "disappearing")
                 p.setDiagnosis(rs.getString("diagnosis"));
                 p.setTreatment(rs.getString("treatment"));
                 p.setPrescription(rs.getString("prescription"));
-
-                // 3. Loading Administrative/Date info
                 p.setAppointmentDate(rs.getString("appt_date"));
                 p.setRegisteredDate(rs.getString("reg_date"));
-                p.setLastVisit(rs.getString("last_visit")); // Added this to prevent the "disappearing" visit date
+                p.setLastVisit(rs.getString("last_visit"));
                 p.setPaymentAmount(rs.getString("payment"));
                 p.setBalanceOwed(rs.getDouble("balance_owed"));
 
@@ -139,7 +129,6 @@ public class DatabaseManager {
     }
 
     public static void savePatient(Patient p) {
-        // 1. Added last_visit to the SQL string to match your TableView requirements
         String sql = "INSERT INTO patients (fayda, name, dob, gender, contact, status, " +
                 "doctor_name, diagnosis, treatment, prescription, appt_date, " +
                 "payment, reg_date, balance_owed, last_visit) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -161,8 +150,6 @@ public class DatabaseManager {
             pstmt.setString(12, p.getPaymentAmount());
             pstmt.setString(13, p.getRegisteredDate());
             pstmt.setDouble(14, p.getBalanceOwed());
-
-            // 2. Explicitly save the initial visit date
             pstmt.setString(15, p.getLastVisit());
 
             pstmt.executeUpdate();
@@ -180,7 +167,6 @@ public class DatabaseManager {
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            // The order MUST match the SQL string above exactly!
             pstmt.setString(1, p.getName());
             pstmt.setString(2, p.getDob());
             pstmt.setString(3, p.getGender());
@@ -195,8 +181,6 @@ public class DatabaseManager {
             pstmt.setDouble(12, p.getBalanceOwed());
             pstmt.setString(13, p.getRegisteredDate());
             pstmt.setString(14, p.getLastVisit());
-
-            // 15 is the WHERE clause (fayda)
             pstmt.setString(15, p.getFayda());
 
             int rowsAffected = pstmt.executeUpdate();
@@ -207,12 +191,12 @@ public class DatabaseManager {
             e.printStackTrace();
         }
     }
-    // This goes in DatabaseManager.java
+
     public static void updateBillingInfo(String faydaID, String amount, String status) {
         String sql = "UPDATE patients SET payment_amount = ?, payment_status = ? WHERE fayda = ?";
 
         try (Connection conn = DriverManager.getConnection(URL)) {
-            conn.setAutoCommit(false); // Step 1: Stop auto-pilot
+            conn.setAutoCommit(false);
 
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, amount);
@@ -220,7 +204,7 @@ public class DatabaseManager {
                 pstmt.setString(3, faydaID);
 
                 int affected = pstmt.executeUpdate();
-                conn.commit(); // Step 2: Force the save to the physical disk
+                conn.commit();
 
                 System.out.println("BILLING DEBUG: Updated [" + faydaID + "] - Status: " + status + " - Rows: " + affected);
             } catch (SQLException e) {
@@ -280,9 +264,7 @@ public class DatabaseManager {
         } catch (SQLException e) { e.printStackTrace(); }
     }
     public static String generateUniquePatientID() {
-        String newID = "PT-" + (int)(Math.random() * 90000 + 10000); // Simple random ID for now
-
-        // In a real system, you'd query the DB here to ensure 'newID' doesn't exist yet
+        String newID = "PT-" + (int)(Math.random() * 90000 + 10000);
         return newID;
 
     }
@@ -295,13 +277,13 @@ public class DatabaseManager {
             pstmt.setString(2, password);
 
             ResultSet rs = pstmt.executeQuery();
-            return rs.next(); // Returns true only if Admin778/doc123 matches
+            return rs.next();
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
-    // Add this to DatabaseManager.java
+
     public static Patient getFullMedicalHistory(String faydaId) {
         Patient patient = null;
         String patientSql = "SELECT * FROM patients WHERE fayda = ?";
@@ -310,7 +292,7 @@ public class DatabaseManager {
         try (Connection conn = connect();
              PreparedStatement pstmtPatient = conn.prepareStatement(patientSql)) {
 
-            // 1. Fetch Patient Info
+            //Fetch Patient Info
             pstmtPatient.setString(1, faydaId);
             ResultSet rs = pstmtPatient.executeQuery();
 
@@ -321,9 +303,8 @@ public class DatabaseManager {
                 patient.setDiagnosis(rs.getString("diagnosis"));
                 patient.setTreatment(rs.getString("treatment"));
                 patient.setPrescription(rs.getString("prescription"));
-                // Add any other fields you need here...
 
-                // 2. Fetch Lab Results for this patient
+                //Fetch Lab Results for this patient
                 try (PreparedStatement pstmtLabs = conn.prepareStatement(labsSql)) {
                     pstmtLabs.setString(1, faydaId);
                     ResultSet rsLabs = pstmtLabs.executeQuery();
@@ -334,15 +315,14 @@ public class DatabaseManager {
                                 rsLabs.getString("result_value"),
                                 rsLabs.getString("test_date")
                         );
-                        patient.getLabResults().add(lab); // Assuming your Patient class has a List<LabResult>
+                        patient.getLabResults().add(lab);
                     }
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error fetching medical history: " + e.getMessage());
         }
-
-        return patient; // This satisfies the 'return value expected' error!
+        return patient;
     }
     public static ObservableList<LabResult> getPatientLabs(String faydaId) {
         ObservableList<LabResult> labs = FXCollections.observableArrayList();
@@ -366,7 +346,6 @@ public class DatabaseManager {
     public static void updatePaymentStatus(String faydaId, String newStatus) {
         String sql = "UPDATE patients SET payment_status = ? WHERE fayda = ?";
 
-        // We manually manage the connection here to ensure a COMMIT happens
         try (Connection conn = DriverManager.getConnection(URL)) {
             conn.setAutoCommit(false); // Start a manual transaction
 
@@ -375,13 +354,13 @@ public class DatabaseManager {
                 pstmt.setString(2, faydaId);
 
                 int affected = pstmt.executeUpdate();
-                conn.commit(); // FORCE the data onto the hard drive now
+                conn.commit(); // FORCE the data onto the hard driv
 
                 System.out.println("CRITICAL DEBUG: Tried updating [" + faydaId + "]");
                 System.out.println("CRITICAL DEBUG: Rows actually changed: " + affected);
 
             } catch (SQLException e) {
-                conn.rollback(); // If it fails, undo everything
+                conn.rollback(); // If it fails, undo
                 e.printStackTrace();
             }
         } catch (SQLException e) {
@@ -391,7 +370,7 @@ public class DatabaseManager {
     public static boolean registerUser(String username, String password, String role) {
         String sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
 
-        try (Connection conn = connect(); // Ensure you have a connect() method
+        try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
@@ -415,17 +394,15 @@ public class DatabaseManager {
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                return rs.getString("role"); // Returns "HR" or "DOCTOR"
+                return rs.getString("role");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null; // Login failed if no user found
+        return null;
     }
 
     public static Connection getConnection() throws SQLException {
-        // This ensures MainController can find the method it's looking for!
         return DriverManager.getConnection(URL);
     }
-
 }

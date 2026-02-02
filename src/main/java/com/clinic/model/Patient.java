@@ -28,7 +28,6 @@ public class Patient {
 
     public Patient() {}
 
-    // Updated Constructor to include all fields including the "missing" ones during updates
     public Patient(String name, String dob, String gender, String contact, String fayda,
                    String doctor, String diagnosis, String treatment, String prescription,
                    String apptDate, String status, String regDate) {
@@ -46,7 +45,7 @@ public class Patient {
         setRegisteredDate(regDate);
     }
 
-    // --- PROPERTY METHODS (Critical for TableView binding) ---
+    // --- PROPERTY METHODS ---
     public StringProperty nameProperty() { return name; }
     public StringProperty dobProperty() { return dob; }
     public StringProperty genderProperty() { return gender; }

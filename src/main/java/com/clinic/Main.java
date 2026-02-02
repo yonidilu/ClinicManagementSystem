@@ -16,7 +16,6 @@ public class Main extends Application {
         stage.setTitle("Clinic Management System");
         stage.setScene(scene);
 
-        // ADD THIS LINE HERE
         stage.setMaximized(true);
 
         stage.show();

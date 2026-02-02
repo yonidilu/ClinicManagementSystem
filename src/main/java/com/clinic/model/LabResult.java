@@ -18,7 +18,7 @@ public class LabResult {
     public String getResultValue() { return resultValue.get(); }
     public String getTestDate() { return testDate.get(); }
 
-    // JavaFX Property Getters (This fixes the LabController errors!)
+    // JavaFX Property Getters
     public StringProperty testNameProperty() { return testName; }
     public StringProperty resultValueProperty() { return resultValue; }
     public StringProperty testDateProperty() { return testDate; }

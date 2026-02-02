@@ -23,16 +23,14 @@ public class EHRController {
     @FXML private Label faydaLabel;
     @FXML private Label dobLabel;
     @FXML private Label diagnosisLabel;
-
-    @FXML private TextArea treatmentArea; // The editable Treatment Plan
-    @FXML private TextArea prescriptionArea; // The editable Prescription area
-
-    @FXML private TableView<LabResult> labTable; // Shows Blood Sugar results
+    @FXML private TextArea treatmentArea;
+    @FXML private TextArea prescriptionArea;
+    @FXML private TableView<LabResult> labTable;
     @FXML private TableColumn<LabResult, String> testCol;
     @FXML private TableColumn<LabResult, String> resultCol;
     @FXML private TableColumn<LabResult, String> dateCol;
 
-    // Define PDF Header Font correctly
+    //PDF Header Font
     private static final Font HEADER_FONT = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
     private static final Font BODY_FONT = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
 
@@ -47,12 +45,12 @@ public class EHRController {
     public void loadPatientData(Patient patient) {
         if (patient != null) {
             nameLabel.setText(patient.getName());
-            idLabel.setText(patient.getFayda()); // PT-26962
+            idLabel.setText(patient.getFayda());
             faydaLabel.setText(patient.getFayda());
             dobLabel.setText(patient.getDob());
             diagnosisLabel.setText(patient.getDiagnosis());
-            treatmentArea.setText(patient.getTreatment()); // Shows "efw"
-            prescriptionArea.setText(patient.getPrescription()); // Shows "ergqerv"
+            treatmentArea.setText(patient.getTreatment());
+            prescriptionArea.setText(patient.getPrescription());
 
             // Load data from DB
             labTable.setItems(DatabaseManager.getPatientLabs(patient.getFayda()));
@@ -66,7 +64,6 @@ public class EHRController {
         p.setDiagnosis(diagnosisLabel.getText());
         p.setTreatment(treatmentArea.getText());
         p.setPrescription(prescriptionArea.getText());
-
         DatabaseManager.updatePatient(p);
         System.out.println("EHR Saved for: " + p.getFayda());
     }
@@ -120,7 +117,6 @@ public class EHRController {
         alert.setContentText("Medical Report for " + nameLabel.getText() + " has been saved!");
         alert.showAndWait();
     }
-
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);

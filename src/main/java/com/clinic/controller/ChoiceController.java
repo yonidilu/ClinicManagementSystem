@@ -11,9 +11,7 @@ import java.io.IOException;
 
 public class ChoiceController {
 
-    // All buttons now point to this helper method
     private void goToLogin(ActionEvent event, String title) {
-        // Use the full path so Java doesn't get lost
         switchToScene(event, "/login-view.fxml", title);
     }
 
@@ -24,7 +22,6 @@ public class ChoiceController {
 
     @FXML
     private void handleHRSelection(ActionEvent event) {
-        // Now HR goes to Login, NOT the hiring form!
         goToLogin(event, "HR Login");
     }
 
@@ -33,7 +30,7 @@ public class ChoiceController {
         goToLogin(event, "Staff Login");
     }
 
-    // This is your "Universal Mover" method
+    // "Universal Mover" method
     private void switchToScene(ActionEvent event, String fxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));

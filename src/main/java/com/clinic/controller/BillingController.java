@@ -20,7 +20,6 @@ import javafx.scene.text.TextFlow;
 
 public class BillingController {
 
-    // These MUST exist in billing-view.fxml as fx:id
     @FXML private Label patientNameLabel;
     @FXML private Label patientIDLabel;
     @FXML private Label transactionIDLabel;
@@ -103,23 +102,19 @@ public class BillingController {
                 System.out.println("Wait! You didn't select a status.");
                 return;
             }
-
-            // 2. The "Handshake" with the Database
-            // 2. The "Handshake" with the Database
-            // We use 'id' and 'status' because those are the variables you defined at lines 99-100
             DatabaseManager.updateBillingInfo(id, amount, status);
 
-              // This updates the UI object immediately
+              // updates the UI object immediately
             currentPatient.setPaymentStatus(status);
 
             System.out.println("UI DEBUG: Table updated for " + currentPatient.getName());
-            // 3. Update the local patient object so the Main Table sees the change
+            // Update the local patient object so the Main Table sees the change
             currentPatient.setPaymentAmount(amount);
             currentPatient.setPaymentStatus(status); // 'setStatus' is gone, 'setPaymentStatus' is the new unified field
 
             System.out.println("Success! Database updated for " + currentPatient.getName());
 
-            // 4. Close the window so the user knows it's done
+            // Close the window so the user knows it's done
             Stage stage = (Stage) totalLabel.getScene().getWindow();
             stage.close();
 
@@ -193,19 +188,13 @@ public class BillingController {
 
     @FXML
     private void handleApplyPrice() {
-        // 1. Get the selected test from the table
         BillItem selectedItem = billTable.getSelectionModel().getSelectedItem();
 
         if (selectedItem != null) {
             try {
                 // 2. Parse the user input
                 double newPrice = Double.parseDouble(priceInput.getText());
-
-                // 3. Update the item (This works because of the Properties we added!)
-                // Note: You might need to add setCost() to your BillItem class
                 selectedItem.setCost(newPrice);
-
-                // 4. Recalculate the total label
                 updateTotal();
 
             } catch (NumberFormatException e) {

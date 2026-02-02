@@ -1,58 +1,46 @@
-/* 1. Modern Cream Background for the whole app */
+
 .root {
-    /* Soft yellowish-white/Cream for a professional medical look */
-    -fx-background-color: #FFFDF0;
+    /* Transitions from a soft lavender-purple to a crisp light sky blue */
+    -fx-background-color: linear-gradient(to bottom right, #e1bee7, #b3e5fc);
     -fx-font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* 2. Rounded & High-Contrast Buttons */
 .button {
-    /* Subtle light-yellow gradient */
-    -fx-background-color: linear-gradient(to bottom, #FEF9E7 0%, #FDFEFE 100%);
-    -fx-text-fill: black; /* Changed to black for readability */
+    -fx-background-color: linear-gradient(#4facfe 0%, #00f2fe 100%); /* Vibrant blue gradient */
+    -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-background-radius: 20;
+    -fx-background-radius: 20; /* This makes them round on the edges */
     -fx-border-radius: 20;
-    -fx-border-color: #D4AC0D; /* Gold border to define button edges */
     -fx-padding: 10 20 10 20;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
     -fx-transition: 0.3s;
 }
 
-/* 3. Click Effect (The "Press" Animation) */
 .button:pressed {
-    -fx-background-color: #FCF3CF; /* Slightly darker yellow when clicked */
-    -fx-scale-x: 0.95;
+    -fx-background-color: #00c6ff; /* Darker blue when clicked */
+    -fx-scale-x: 0.95; /* Shrinks slightly to look like a physical button */
     -fx-scale-y: 0.95;
-    -fx-effect: none;
+    -fx-effect: none; /* Removes shadow when pressed */
 }
 
-/* Hover Effect */
 .button:hover {
-    -fx-background-color: #FCF3CF;
+    -fx-background-color: linear-gradient(#00f2fe 0%, #4facfe 100%); /* Flip gradient on hover */
     -fx-cursor: hand;
 }
 
-/* 4. Table Styling to match the warm theme */
 .table-view {
-    -fx-background-color: yellowish white;
+    -fx-background-color: white;
     -fx-background-radius: 10;
     -fx-border-radius: 10;
-    -fx-border-color: #D4AC0D;
+    -fx-border-color: #d1d9e6;
     -fx-padding: 5;
 }
 
 .table-view .column-header {
-    /* Muted Yellow header instead of Blue */
-    -fx-background-color: #F7DC6F;
+    -fx-background-color: #3498db;
     -fx-background-radius: 10 10 0 0;
 }
 
 .table-view .column-header .label {
-    -fx-text-fill: black; /* Changed from white to black */
-}
-
-/* Table Cell Text */
-.table-row-cell {
-    -fx-text-fill: black;
+    -fx-text-fill: white;
 }

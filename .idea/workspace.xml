@@ -4,25 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f4e769a8-2ec0-4742-b6be-5c9ea3185361" name="Changes" comment="feat: standardize patient registration and fix data persistence&#10;&#10;Fix bug where patient credentials cleared during edit/restart cycles.&#10;&#10;Convert doctor input from TextField to ComboBox (dropdown) for data consistency.&#10;&#10;Resolve mapping issues for 'Last Visit' and 'Registration Date' columns in TableView.&#10;&#10;Update DatabaseManager to use fayda(in this case, the cilinic given unique ID) as the primary key for updates.">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/clinic/AppLauncher.java" afterDir="false" />
+    <list default="true" id="f4e769a8-2ec0-4742-b6be-5c9ea3185361" name="Changes" comment="fixed small bugs, and cleared unnecessary code snippets">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LabReport_Neyo_Chis.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Medical_Report_PT-26962.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/BillingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/BillingController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/ChoiceController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/ChoiceController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/DetailsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/DetailsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/EHRController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/EHRController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/HRController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/HRController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/HRDashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/HRDashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/LabController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/LabController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/LoginController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/MainController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/model/DatabaseManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/model/DatabaseManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/model/LabResult.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/model/LabResult.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/model/Patient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/model/Patient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/style.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,6 +35,7 @@
       </GitPushTagMode>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -127,7 +112,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769787734344</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="fixed small bugs, and cleared unnecessary code snippets">
+      <option name="closed" value="true" />
+      <created>1770033368176</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1770033368176</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -144,6 +137,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="fix: evicted the OneDrive ghost and gave the database a memory&#10;&#10;Finally made the &quot;Paid&quot; status stick after 5,000 restarts.&#10;&#10;Renamed variables so the code actually talks to itself correctly.&#10;it now has billing system, and patient medical history!&#10;&#10;If this breaks again, I’m becoming a farmer... you think i'm joking!?" />
     <MESSAGE value="feat: implement RBAC, schema updates, and PDF reporting&#10;&#10;- Integrated Role-Based Access Control (RBAC) with HR and Doctor roles.&#10;- Updated database schema to include last_visit, reg_date, and payment attributes.&#10;- Added PDF generation for medical history and payment receipts.&#10;- Fixed NullPointerException in patient status handling and improved data persistence." />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: implement RBAC, schema updates, and PDF reporting&#10;&#10;- Integrated Role-Based Access Control (RBAC) with HR and Doctor roles.&#10;- Updated database schema to include last_visit, reg_date, and payment attributes.&#10;- Added PDF generation for medical history and payment receipts.&#10;- Fixed NullPointerException in patient status handling and improved data persistence." />
+    <MESSAGE value="fixed small bugs, and cleared unnecessary code snippets" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed small bugs, and cleared unnecessary code snippets" />
   </component>
 </project>

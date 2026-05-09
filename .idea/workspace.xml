@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f4e769a8-2ec0-4742-b6be-5c9ea3185361" name="Changes" comment="fixed small bugs, and cleared unnecessary code snippets">
+    <list default="true" id="f4e769a8-2ec0-4742-b6be-5c9ea3185361" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_31_2026_7_50_PM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_31_2026_7_50_PM__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_1_2026_7_02_PM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_1_2026_7_02_PM__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/style.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,7 +38,6 @@
       </GitPushTagMode>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -46,7 +48,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/yonidilu/ClinicManagementSystem.git&quot;,
-    &quot;accountId&quot;: &quot;e81393e9-2393-4ba3-8b90-ddf4d598f044&quot;
+    &quot;accountId&quot;: &quot;44edc958-a757-4f2d-8212-58d8b95b6a68&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -65,10 +67,13 @@
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RunManager">
@@ -84,7 +89,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.27397.103" />
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.30387.90" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.30387.90" />
       </set>
     </attachedChunks>
   </component>
@@ -95,6 +101,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1769721417346</updated>
+      <workItem from="1770901259488" duration="271000" />
+      <workItem from="1778356093346" duration="28000" />
     </task>
     <task id="LOCAL-00001" summary="fix: evicted the OneDrive ghost and gave the database a memory&#10;&#10;Finally made the &quot;Paid&quot; status stick after 5,000 restarts.&#10;&#10;Renamed variables so the code actually talks to itself correctly.&#10;it now has billing system, and patient medical history!&#10;&#10;If this breaks again, I’m becoming a farmer... you think i'm joking!?">
       <option name="closed" value="true" />
@@ -112,16 +120,11 @@
       <option name="project" value="LOCAL" />
       <updated>1769787734344</updated>
     </task>
-    <task id="LOCAL-00003" summary="fixed small bugs, and cleared unnecessary code snippets">
-      <option name="closed" value="true" />
-      <created>1770033368176</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1770033368176</updated>
-    </task>
-    <option name="localTasksCounter" value="4" />
+    <option name="localTasksCounter" value="3" />
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -137,7 +140,6 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="fix: evicted the OneDrive ghost and gave the database a memory&#10;&#10;Finally made the &quot;Paid&quot; status stick after 5,000 restarts.&#10;&#10;Renamed variables so the code actually talks to itself correctly.&#10;it now has billing system, and patient medical history!&#10;&#10;If this breaks again, I’m becoming a farmer... you think i'm joking!?" />
     <MESSAGE value="feat: implement RBAC, schema updates, and PDF reporting&#10;&#10;- Integrated Role-Based Access Control (RBAC) with HR and Doctor roles.&#10;- Updated database schema to include last_visit, reg_date, and payment attributes.&#10;- Added PDF generation for medical history and payment receipts.&#10;- Fixed NullPointerException in patient status handling and improved data persistence." />
-    <MESSAGE value="fixed small bugs, and cleared unnecessary code snippets" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed small bugs, and cleared unnecessary code snippets" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: implement RBAC, schema updates, and PDF reporting&#10;&#10;- Integrated Role-Based Access Control (RBAC) with HR and Doctor roles.&#10;- Updated database schema to include last_visit, reg_date, and payment attributes.&#10;- Added PDF generation for medical history and payment receipts.&#10;- Fixed NullPointerException in patient status handling and improved data persistence." />
   </component>
 </project>

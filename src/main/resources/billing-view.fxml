@@ -28,12 +28,13 @@
 
     <TableView fx:id="billTable" prefHeight="200">
         <columns>
-            <TableColumn fx:id="serviceColumn" text="Service" prefWidth="150">
+            <TableColumn fx:id="itemCol" text="Service" prefWidth="150">
                 <cellValueFactory>
                     <PropertyValueFactory property="serviceName" />
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="amountColumn" text="Amount" prefWidth="100">
+
+            <TableColumn fx:id="costCol" text="Amount" prefWidth="100">
                 <cellValueFactory>
                     <PropertyValueFactory property="cost" />
                 </cellValueFactory>

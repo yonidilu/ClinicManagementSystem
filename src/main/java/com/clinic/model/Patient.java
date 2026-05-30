@@ -45,6 +45,9 @@ public class Patient {
         setRegisteredDate(regDate);
     }
 
+    public Patient(String name, String dob, String gender, String contact, String status, String doctorName, String diagnosis, String treatment, String prescription, String apptDate, String fayda) {
+    }
+
     // --- PROPERTY METHODS ---
     public StringProperty nameProperty() { return name; }
     public StringProperty dobProperty() { return dob; }

@@ -1,52 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?> <?import javafx.scene.control.*?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
 <VBox xmlns="http://javafx.com/fxml/1" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.clinic.controller.EHRController" spacing="15"
-      style="-fx-background-color: #f4f7f6;">
+      style="-fx-background-color: #f4f7f6;" stylesheets="@style.css">
+
     <padding>
-        <Insets top="25" right="25" bottom="25" left="25"/>
+        <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
-    <Label text="Patient Medical History" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+    <Label text="Electronic Health Record (EHR) Workspace" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
 
-    <VBox spacing="5" style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #dcdde1;">
-        <Label fx:id="nameLabel" text="Name: " style="-fx-font-weight: bold;"/>
+    <VBox spacing="5" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 5; -fx-border-color: #dcdde1;">
+        <Label text="Patient Identification Record" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 14px;"/>
+        <GridPane hgap="30" vgap="8">
+            <Label text="Full Name:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: bold;"/>
+            <Label fx:id="nameLabel" text="---" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-        <Label fx:id="idLabel" text="ID: " style="-fx-text-fill: #7f8c8d;"/>
+            <Label text="National ID (Fayda):" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: bold;"/>
+            <Label fx:id="idLabel" text="---" GridPane.columnIndex="1" GridPane.rowIndex="1" style="-fx-text-fill: #7f8c8d;"/>
 
-        <Label fx:id="faydaLabel" visible="false" managed="false"/>
+            <Label text="Date of Birth:" GridPane.columnIndex="2" GridPane.rowIndex="0" style="-fx-font-weight: bold;"/>
+            <Label fx:id="dobLabel" text="---" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
 
-        <Label fx:id="dobLabel" text="DOB: "/>
-        <Label fx:id="diagnosisLabel" text="Current Diagnosis: " style="-fx-text-fill: #e67e22;"/>
+            <Label text="Gender Classification:" GridPane.columnIndex="2" GridPane.rowIndex="1" style="-fx-font-weight: bold;"/>
+            <Label fx:id="genderLabel" text="---" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+        </GridPane>
     </VBox>
 
-    <Label text="Treatment Plan:" style="-fx-font-weight: bold;"/>
-    <TextArea fx:id="treatmentArea" prefHeight="100" wrapText="true"
-              style="-fx-control-inner-background: #ffffff; -fx-border-color: #3498db;"/>
+    <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 5; -fx-border-color: #dcdde1;" VBox.vgrow="ALWAYS">
+        <Label text="Clinical Encounter Documentation" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 14px;"/>
 
-    <Label text="Prescription:" style="-fx-font-weight: bold;"/>
-    <TextArea fx:id="prescriptionArea" prefHeight="100" wrapText="true"
-              style="-fx-control-inner-background: #ffffff; -fx-border-color: #27ae60;"/>
+        <Label text="Clinical Diagnosis Input:" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="diagnosisInput" promptText="Enter current analytical findings or diagnostic code..."/>
 
-    <Label text="Lab Test Results:" style="-fx-font-weight: bold;"/>
-    <TableView fx:id="labTable" prefHeight="180">
-        <columns>
-            <TableColumn fx:id="testCol" text="Test Name" prefWidth="150" />
-            <TableColumn fx:id="resultCol" text="Result" prefWidth="100" />
-            <TableColumn fx:id="dateCol" text="Date" prefWidth="120" />
-        </columns>
-    </TableView>
+        <Label text="Active Treatment Plan:" style="-fx-font-weight: bold;"/>
+        <TextArea fx:id="treatmentArea" prefHeight="90" wrapText="true" promptText="Outline therapeutic interventions, physical therapy directions, or specialized therapy regimes..."/>
 
-    <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button text="Save Changes" onAction="#handleSaveEHR"
-                style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-padding: 8 20;"/>
-        <Button text="Export Medical Report (PDF)" onAction="#exportMedicalReport"
-                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 20; -fx-font-weight: bold;"/>
+        <Label text="Prescription Guidelines &amp; Pharmacy Orders:" style="-fx-font-weight: bold;"/>
+        <TextArea fx:id="prescriptionArea" prefHeight="90" wrapText="true" promptText="List medication names, precise dosages, frequencies, and duration parameters..."/>
+
+        <Button text="Commit Medical Plan Updates" onAction="#handleSaveMedicalRecord"
+                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;" maxWidth="250"/>
+        <Button text="View Clinical History" onAction="#handleViewHistory" maxWidth="Infinity"
+                style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold;"/>
+    </VBox>
+
+    <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 5; -fx-border-color: #dcdde1;">
+        <Label text="Clinical Pathology Lab Diagnostic Center" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 14px;"/>
+
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <Label text="Select Test Profile:"/>
+            <ComboBox fx:id="labTestComboBox" promptText="Choose Required Analysis" prefWidth="250"/>
+            <Button text="Submit Lab Order" onAction="#handlePlaceLabOrder"
+                    style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold;"/>
+        </HBox>
+
+        <Label text="Existing Panel Lab Results Summary:" style="-fx-font-weight: bold;-fx-padding: 5 0 0 0;"/>
+        <TableView fx:id="labTable" prefHeight="130">
+            <columns>
+                <TableColumn fx:id="testCol" text="Diagnostic Test Name" prefWidth="250" />
+                <TableColumn fx:id="resultCol" text="Observed Result Values" prefWidth="250" />
+                <TableColumn fx:id="dateCol" text="Completed Execution Date" prefWidth="200" />
+            </columns>
+        </TableView>
+    </VBox>
+
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button text="Return to Master Patient Directory" onAction="#handleBackToDashboard"
+                style="-fx-background-color: #7f8c8d; -fx-text-fill: white;" />
     </HBox>
-
 </VBox>

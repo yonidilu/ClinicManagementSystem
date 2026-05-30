@@ -1,99 +1,132 @@
 package com.clinic.model;
 
-import com.clinic.model.Patient;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.stage.Stage;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseManager {
-    private static final String URL = "jdbc:sqlite:C:/ClinicData/clinic.db";
+
+    // SQLite production absolute system path location string references
+    private static final String URL = "jdbc:sqlite:clinic.db";
+
+    // Global Operational Context State Caches
+    private static String currentUserSessionToken = "";
+    private static String currentUserRoleBoundary = "";
+
+    // Shared global transfer context used to safely pass patient references across controllers
+    public static Patient selectedPatientSessionContext = null;
+
+    public static void setCurrentSession(String username, String role) {
+        currentUserSessionToken = username;
+        currentUserRoleBoundary = role;
+        System.out.println("Session State Updated: Active User Context locked to -> [" + username + "] Role Boundary -> [" + role + "]");
+    }
+
+    public static String getCurrentUserSession() {
+        return currentUserSessionToken;
+    }
+
+    public static String getCurrentUserRole() {
+        return currentUserRoleBoundary;
+    }
+
     private static Connection connect() {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(URL);
             conn.setAutoCommit(true);
         } catch (SQLException e) {
-            System.out.println("Connection failed: " + e.getMessage());
+            System.err.println("Database connection failed execution trace: " + e.getMessage());
         }
         return conn;
     }
 
+    public static Connection getConnection() throws SQLException {
+        return connect();
+    }
 
     public static void initializeDatabase() {
-        System.out.println("DEBUG: Connection URL is: " + URL);
-
         try (Connection conn = connect();
              Statement stmt = conn.createStatement()) {
 
-            // Patients Table
-            stmt.execute("CREATE TABLE IF NOT EXISTS patients (" +
-                    "fayda TEXT PRIMARY KEY, name TEXT, dob TEXT, gender TEXT, " +
-                    "contact TEXT, status TEXT, doctor_name TEXT, diagnosis TEXT, " +
-                    "treatment TEXT, prescription TEXT, appt_date TEXT, payment TEXT, " +
-                    "reg_date TEXT, last_visit TEXT, balance_owed REAL DEFAULT 0.0);");
+            System.out.println("Initializing Database Engine: Compiling baseline schema structures...");
 
-            // Users Table
-            stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, " +
-                    "password TEXT, role TEXT);");
+            // Build Tables safely from Schema specification file definitions
+            stmt.execute(DatabaseSchema.CREATE_PATIENTS_TABLE);
+            stmt.execute(DatabaseSchema.CREATE_USERS_TABLE);
+            stmt.execute(DatabaseSchema.CREATE_LAB_RESULTS_TABLE);
+            stmt.execute(DatabaseSchema.CREATE_DOCTORS_TABLE);
+            stmt.execute(DatabaseSchema.CREATE_APPOINTMENTS_TABLE);
+            stmt.execute(DatabaseSchema.CREATE_INVENTORY_TABLE);
+            stmt.execute(DatabaseSchema.CREATE_ENCOUNTERS_TABLE);
 
-            // Lab Results Table
-            stmt.execute("CREATE TABLE IF NOT EXISTS lab_results (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT, patient_id TEXT NOT NULL, " +
-                    "test_name TEXT, result_value TEXT, test_date TEXT, " +
-                    "FOREIGN KEY (patient_id) REFERENCES patients(fayda));");
-
-            // Doctors, Appointments, and Inventory
-            stmt.execute("CREATE TABLE IF NOT EXISTS doctors (" +
-                    "doctor_id INTEGER PRIMARY KEY AUTOINCREMENT, first_name TEXT, last_name TEXT, " +
-                    "specialization TEXT, schedule TEXT);");
-
-            stmt.execute("CREATE TABLE IF NOT EXISTS appointments (" +
-                    "appointment_id INTEGER PRIMARY KEY AUTOINCREMENT, patient_id TEXT, " +
-                    "doctor_id INTEGER, appointment_date TEXT, status TEXT, " +
-                    "FOREIGN KEY(patient_id) REFERENCES patients(fayda), " +
-                    "FOREIGN KEY(doctor_id) REFERENCES doctors(doctor_id));");
-
-            // fayda is the unique key we use for everything
-            stmt.execute("CREATE TABLE IF NOT EXISTS patients (fayda TEXT PRIMARY KEY, name TEXT);");
-
-            stmt.execute("CREATE TABLE IF NOT EXISTS inventory (" +
-                    "inventory_id INTEGER PRIMARY KEY AUTOINCREMENT, item_name TEXT, " +
-                    "quantity INTEGER, expiration_date TEXT);");
-
-            //RUN PATCHES
-            String[] patches = {
-                    "ALTER TABLE patients ADD COLUMN payment_status TEXT;",
-                    "ALTER TABLE patients ADD COLUMN payment_amount TEXT;",
-                    "ALTER TABLE patients ADD COLUMN last_visit TEXT;",
-                    "ALTER TABLE patients ADD COLUMN reg_date TEXT;"
-            };
-
-            for (String patch : patches) {
-                try {
-                    stmt.execute(patch);
-                } catch (SQLException e) {}
+            // NEW: Automatically provision the new financial tracking subsystem table
+            try {
+                stmt.execute(DatabaseSchema.CREATE_BILLING_TABLE);
+                System.out.println("Database Engine: Billing ledger tables validated smoothly.");
+            } catch (SQLException e) {
+                System.err.println("Notice: Billing table initialization alert: " + e.getMessage());
             }
 
-            // (The Master Keys)
-            // We used INSERT OR IGNORE so it won't crash if they already exist
-            stmt.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('doc123', 'admin', 'DOCTOR');");
-            stmt.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('hr123', 'admin', 'HR');");
+            // Execute schema migration maintenance patches cleanly
+            if (DatabaseSchema.STRUCTURAL_PATCHES != null) {
+                for (String patch : DatabaseSchema.STRUCTURAL_PATCHES) {
+                    try {
+                        stmt.execute(patch);
+                    } catch (SQLException e) {
+                        // Catch silently if columns are already registered in schema maps
+                    }
+                }
+            }
 
-            System.out.println("Database initialization complete. All tables and users verified!");
+            // Insert default foundational logins safely
+            try { stmt.execute(DatabaseSchema.INSERT_DEFAULT_DOCTOR); } catch (Exception e) {}
+            try { stmt.execute(DatabaseSchema.INSERT_DEFAULT_HR); } catch (Exception e) {}
+
+            // GUARANTEED TEST LOGIN PROFILES: Seed exactly 3 accounts matching interface boundaries
+            stmt.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('doctor', 'doc123', 'DOCTOR');");
+            stmt.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('receptionist', 'rec123', 'RECEPTION');");
+            stmt.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('labtech', 'lab123', 'LAB_UNIT');");
+
+            System.out.println("Database Engine Bootstrapping Complete: Core authentication keys loaded successfully.");
 
         } catch (SQLException e) {
-            System.err.println("Initialization failed: " + e.getMessage());
+            System.err.println("Fatal system initialization SQL crash occurred: " + e.getMessage());
+        }
+    }
+    public static boolean savePatient(Patient patient) {
+        String sql = "INSERT OR REPLACE INTO patients (fayda, name, dob, gender, contact, status, doctor_name, reg_date, diagnosis, treatment, prescription, appt_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, patient.getFayda());
+            pstmt.setString(2, patient.getName());
+            pstmt.setString(3, patient.getDob());
+            pstmt.setString(4, patient.getGender());
+            pstmt.setString(5, patient.getContact());
+            pstmt.setString(6, patient.getPaymentStatus());
+            pstmt.setString(7, patient.getAssignedDoctor());
+            pstmt.setString(8, patient.getRegisteredDate());
+            pstmt.setString(9, patient.getDiagnosis());
+            pstmt.setString(10, patient.getTreatment());
+            pstmt.setString(11, patient.getPrescription());
+            pstmt.setString(12, patient.getAppointmentDate());
+
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Database patient profile serialization failure: " + e.getMessage());
+            return false;
         }
     }
 
     public static List<Patient> getAllPatients() {
-        List<Patient> list = new ArrayList<>();
-        String sql = "SELECT * FROM patients";
+        List<Patient> directoryList = new ArrayList<>();
+
+        // UPDATED: By removing the WHERE clause, the system now pulls
+        // the complete registry for any user with valid access permissions.
+        String sql = "SELECT * FROM patients ORDER BY reg_date DESC";
 
         try (Connection conn = connect();
              Statement stmt = conn.createStatement();
@@ -101,308 +134,251 @@ public class DatabaseManager {
 
             while (rs.next()) {
                 Patient p = new Patient();
-
-                //Loading basic info
-                p.setName(rs.getString("name"));
                 p.setFayda(rs.getString("fayda"));
-                p.setAssignedDoctor(rs.getString("doctor_name"));
-                p.setPaymentStatus(rs.getString("status"));
+                p.setName(rs.getString("name"));
                 p.setDob(rs.getString("dob"));
                 p.setGender(rs.getString("gender"));
                 p.setContact(rs.getString("contact"));
-                p.setDiagnosis(rs.getString("diagnosis"));
-                p.setTreatment(rs.getString("treatment"));
-                p.setPrescription(rs.getString("prescription"));
-                p.setAppointmentDate(rs.getString("appt_date"));
+                p.setPaymentStatus(rs.getString("status"));
+                p.setAssignedDoctor(rs.getString("doctor_name"));
                 p.setRegisteredDate(rs.getString("reg_date"));
-                p.setLastVisit(rs.getString("last_visit"));
-                p.setPaymentAmount(rs.getString("payment"));
-                p.setBalanceOwed(rs.getDouble("balance_owed"));
 
-                list.add(p);
+                directoryList.add(p);
             }
         } catch (SQLException e) {
-            System.err.println("CRITICAL: Database Load Failed!");
-            e.printStackTrace();
+            System.err.println("Directory registry fetch failed: " + e.getMessage());
         }
-        return list;
+        return directoryList;
     }
 
-    public static void savePatient(Patient p) {
-        String sql = "INSERT INTO patients (fayda, name, dob, gender, contact, status, " +
-                "doctor_name, diagnosis, treatment, prescription, appt_date, " +
-                "payment, reg_date, balance_owed, last_visit) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-        try (Connection conn = DriverManager.getConnection(URL);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, p.getFayda());
-            pstmt.setString(2, p.getName());
-            pstmt.setString(3, p.getDob());
-            pstmt.setString(4, p.getGender());
-            pstmt.setString(5, p.getContact());
-            pstmt.setString(6, p.getPaymentStatus());
-            pstmt.setString(7, p.getAssignedDoctor());
-            pstmt.setString(8, p.getDiagnosis());
-            pstmt.setString(9, p.getTreatment());
-            pstmt.setString(10, p.getPrescription());
-            pstmt.setString(11, p.getAppointmentDate());
-            pstmt.setString(12, p.getPaymentAmount());
-            pstmt.setString(13, p.getRegisteredDate());
-            pstmt.setDouble(14, p.getBalanceOwed());
-            pstmt.setString(15, p.getLastVisit());
-
-            pstmt.executeUpdate();
-            System.out.println("SAVE SUCCESS: Patient " + p.getName() + " added to database.");
-        } catch (SQLException e) {
-            System.err.println("SAVE ERROR: Could not save patient. Ensure DB schema matches!");
-            e.printStackTrace();
-        }
-    }
-    public static void updatePatient(Patient p) {
-        String sql = "UPDATE patients SET name=?, dob=?, gender=?, contact=?, status=?, " +
-                "doctor_name=?, diagnosis=?, treatment=?, prescription=?, appt_date=?, " +
-                "payment=?, balance_owed=?, reg_date=?, last_visit=? WHERE fayda=?";
+    public static List<LabResult> getAllLabResults() {
+        List<LabResult> allOrders = new ArrayList<>();
+        String sql = "SELECT * FROM lab_results ORDER BY test_date DESC";
 
         try (Connection conn = connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
 
-            pstmt.setString(1, p.getName());
-            pstmt.setString(2, p.getDob());
-            pstmt.setString(3, p.getGender());
-            pstmt.setString(4, p.getContact());
-            pstmt.setString(5, p.getPaymentStatus());
-            pstmt.setString(6, p.getAssignedDoctor());
-            pstmt.setString(7, p.getDiagnosis());
-            pstmt.setString(8, p.getTreatment());
-            pstmt.setString(9, p.getPrescription());
-            pstmt.setString(10, p.getAppointmentDate());
-            pstmt.setString(11, p.getPaymentAmount());
-            pstmt.setDouble(12, p.getBalanceOwed());
-            pstmt.setString(13, p.getRegisteredDate());
-            pstmt.setString(14, p.getLastVisit());
-            pstmt.setString(15, p.getFayda());
-
-            int rowsAffected = pstmt.executeUpdate();
-            System.out.println("Update Status: " + (rowsAffected > 0 ? "Success" : "No patient found with Fayda: " + p.getFayda()));
-
-        } catch (SQLException e) {
-            System.err.println("SQL ERROR in updatePatient: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    public static void updateBillingInfo(String faydaID, String amount, String status) {
-        String sql = "UPDATE patients SET payment_amount = ?, payment_status = ? WHERE fayda = ?";
-
-        try (Connection conn = DriverManager.getConnection(URL)) {
-            conn.setAutoCommit(false);
-
-            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, amount);
-                pstmt.setString(2, status);
-                pstmt.setString(3, faydaID);
-
-                int affected = pstmt.executeUpdate();
-                conn.commit();
-
-                System.out.println("BILLING DEBUG: Updated [" + faydaID + "] - Status: " + status + " - Rows: " + affected);
-            } catch (SQLException e) {
-                conn.rollback(); // Undo if something breaks
-                e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void addLabResult(String patientId, String test, String result, String date) {
-        String sql = "INSERT INTO lab_results(patient_id, test_name, result_value, test_date) VALUES(?,?,?,?)";
-        try (Connection conn = connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, patientId);
-            pstmt.setString(2, test);
-            pstmt.setString(3, result);
-            pstmt.setString(4, date);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println("Lab Save Error: " + e.getMessage());
-        }
-    }
-
-    public static void deletePatient(String fayda) {
-        String sql = "DELETE FROM patients WHERE fayda = ?"; // Use fayda, not id
-        try (Connection conn = connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, fayda);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.err.println("Delete failed: " + e.getMessage());
-        }
-    }
-    public static List<LabResult> getLabResults(String patientId) {
-        List<LabResult> results = new ArrayList<>();
-        String sql = "SELECT test_name, result_value, test_date FROM lab_results WHERE patient_id = ?";
-
-        try (Connection conn = DriverManager.getConnection(URL);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, patientId);
-            ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                results.add(new LabResult(rs.getString("test_name"), rs.getString("result_value"), rs.getString("test_date")));
+                allOrders.add(new LabResult(
+                        rs.getString("patient_id"),
+                        rs.getString("test_name"),
+                        rs.getString("result_value"),
+                        rs.getString("test_date"),
+                        rs.getString("ordering_doctor")
+                ));
             }
-        } catch (SQLException e) { e.printStackTrace(); }
-        return results;
+        } catch (SQLException e) {
+            // Logging the specific error helps you identify if it's a table name
+            // or column name mismatch in your clinic.db
+            System.err.println("Database fetch failure: " + e.getMessage());
+        }
+        return allOrders;
     }
-    public static void deleteLabResult(String patientId, String testName) {
-        String sql = "DELETE FROM lab_results WHERE patient_id = ? AND test_name = ?";
-        try (Connection conn = DriverManager.getConnection(URL);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, patientId);
-            pstmt.setString(2, testName);
-            pstmt.executeUpdate();
-        } catch (SQLException e) { e.printStackTrace(); }
-    }
-    public static String generateUniquePatientID() {
-        String newID = "PT-" + (int)(Math.random() * 90000 + 10000);
-        return newID;
 
-    }
-    public static boolean verifyLogin(String username, String password) {
-        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+    public static void updatePatient(Patient patient) {
+        String sql = "UPDATE patients SET name=?, dob=?, gender=?, contact=?, status=?, doctor_name=?, diagnosis=?, treatment=?, prescription=?, appt_date=? WHERE fayda=?";
+
+        System.out.println("DEBUG: Attempting to update ID: " + patient.getFayda()); // Check this ID
+
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, username);
-            pstmt.setString(2, password);
+            pstmt.setString(1, patient.getName());
+            pstmt.setString(2, patient.getDob());
+            pstmt.setString(3, patient.getGender());
+            pstmt.setString(4, patient.getContact());
+            pstmt.setString(5, patient.getPaymentStatus());
+            pstmt.setString(6, patient.getAssignedDoctor());
+            pstmt.setString(7, patient.getDiagnosis());
+            pstmt.setString(8, patient.getTreatment());
+            pstmt.setString(9, patient.getPrescription());
+            pstmt.setString(10, patient.getAppointmentDate());
+            pstmt.setString(11, patient.getFayda());
 
-            ResultSet rs = pstmt.executeQuery();
-            return rs.next();
+            int rows = pstmt.executeUpdate();
+            System.out.println("DEBUG: Rows updated: " + rows); // This is the key!
+
         } catch (SQLException e) {
+            System.err.println("DEBUG: SQL Exception: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    public static boolean orderLabTest(String patientFayda, String testName, String doctorId) {
+        String sql = "INSERT INTO lab_results (patient_id, test_name, result_value, test_date, ordering_doctor) VALUES (?, ?, 'PENDING', ?, ?)";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, patientFayda);
+            pstmt.setString(2, testName);
+            pstmt.setString(3, java.time.LocalDate.now().toString());
+            // Implicitly tags the active authenticated doctor context signature
+            pstmt.setString(4, doctorId);
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Laboratory diagnostic placement subsystem allocation failed: " + e.getMessage());
             return false;
         }
     }
 
-    public static Patient getFullMedicalHistory(String faydaId) {
-        Patient patient = null;
-        String patientSql = "SELECT * FROM patients WHERE fayda = ?";
-        String labsSql = "SELECT * FROM lab_results WHERE patient_id = ?";
+    public static ObservableList<LabResultQueueItem> getAllPendingLabOrders() {
+        ObservableList<LabResultQueueItem> orderQueue = FXCollections.observableArrayList();
+        // Inner join captures name contexts securely while resolving reference rows
+        String sql = "SELECT l.patient_id, p.name AS patient_name, l.test_name, l.result_value, l.test_date, l.ordering_doctor " +
+                "FROM lab_results l " +
+                "JOIN patients p ON l.patient_id = p.fayda " +
+                "ORDER BY l.test_date DESC";
 
         try (Connection conn = connect();
-             PreparedStatement pstmtPatient = conn.prepareStatement(patientSql)) {
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
-            //Fetch Patient Info
-            pstmtPatient.setString(1, faydaId);
-            ResultSet rs = pstmtPatient.executeQuery();
-
-            if (rs.next()) {
-                patient = new Patient();
-                patient.setName(rs.getString("name"));
-                patient.setFayda(rs.getString("fayda"));
-                patient.setDiagnosis(rs.getString("diagnosis"));
-                patient.setTreatment(rs.getString("treatment"));
-                patient.setPrescription(rs.getString("prescription"));
-
-                //Fetch Lab Results for this patient
-                try (PreparedStatement pstmtLabs = conn.prepareStatement(labsSql)) {
-                    pstmtLabs.setString(1, faydaId);
-                    ResultSet rsLabs = pstmtLabs.executeQuery();
-
-                    while (rsLabs.next()) {
-                        LabResult lab = new LabResult(
-                                rsLabs.getString("test_name"),
-                                rsLabs.getString("result_value"),
-                                rsLabs.getString("test_date")
-                        );
-                        patient.getLabResults().add(lab);
-                    }
-                }
+            while (rs.next()) {
+                orderQueue.add(new LabResultQueueItem(
+                        rs.getString("patient_id"),
+                        rs.getString("patient_name"),
+                        rs.getString("test_name"),
+                        rs.getString("result_value"),
+                        rs.getString("test_date"),
+                        rs.getString("ordering_doctor")
+                ));
             }
         } catch (SQLException e) {
-            System.err.println("Error fetching medical history: " + e.getMessage());
+            System.err.println("Failed to parse full global lab orders matrix stream: " + e.getMessage());
         }
-        return patient;
+        return orderQueue;
     }
-    public static ObservableList<LabResult> getPatientLabs(String faydaId) {
-        ObservableList<LabResult> labs = FXCollections.observableArrayList();
+
+    public static boolean updateLabResultValue(String patientFayda, String testName, String resultVal, String completionDate) {
+        String sql = "UPDATE lab_results SET result_value = ?, test_date = ? WHERE patient_id = ? AND test_name = ? AND result_value = 'PENDING'";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, resultVal);
+            pstmt.setString(2, completionDate);
+            pstmt.setString(3, patientFayda);
+            pstmt.setString(4, testName);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Failed to write clinical laboratory measurements map profile: " + e.getMessage());
+        }
+        return false;
+    }
+    // This is the bridge method required by BillingController
+    public static ObservableList<LabResult> getPatientLabs(String patientFayda) {
+        ObservableList<LabResult> results = FXCollections.observableArrayList();
         String sql = "SELECT * FROM lab_results WHERE patient_id = ?";
 
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, faydaId);
+
+            pstmt.setString(1, patientFayda);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                labs.add(new LabResult(
+                results.add(new LabResult(
+                        rs.getString("patient_id"),
                         rs.getString("test_name"),
                         rs.getString("result_value"),
-                        rs.getString("test_date")
+                        rs.getString("test_date"),
+                        rs.getString("ordering_doctor")
                 ));
             }
-        } catch (SQLException e) { e.printStackTrace(); }
-        return labs;
-    }
-    public static void updatePaymentStatus(String faydaId, String newStatus) {
-        String sql = "UPDATE patients SET payment_status = ? WHERE fayda = ?";
-
-        try (Connection conn = DriverManager.getConnection(URL)) {
-            conn.setAutoCommit(false); // Start a manual transaction
-
-            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, newStatus);
-                pstmt.setString(2, faydaId);
-
-                int affected = pstmt.executeUpdate();
-                conn.commit(); // FORCE the data onto the hard driv
-
-                System.out.println("CRITICAL DEBUG: Tried updating [" + faydaId + "]");
-                System.out.println("CRITICAL DEBUG: Rows actually changed: " + affected);
-
-            } catch (SQLException e) {
-                conn.rollback(); // If it fails, undo
-                e.printStackTrace();
-            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Database fetch error in getPatientLabs: " + e.getMessage());
         }
+        return results;
     }
-    public static boolean registerUser(String username, String password, String role) {
-        String sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
 
+    public static boolean registerUser(String username, String password, String role) {
+        String sql = "INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
             pstmt.setString(1, username);
             pstmt.setString(2, password);
             pstmt.setString(3, role);
-
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
-            System.out.println("Registration error: " + e.getMessage());
+            System.err.println("Identity enrollment structural entry error code: " + e.getMessage());
             return false;
         }
     }
+
     public static String verifyUserRole(String username, String password) {
-        String sql = "SELECT role FROM users WHERE username = ? AND password = ?";
+        // Force inputs to trim out any trailing or leading invisible spaces
+        if (username == null || password == null) return null;
+        String cleanUser = username.trim();
+        String cleanPass = password.trim();
+
+        // Using LOWER() in SQL ensures case-insensitive verification
+        String sql = "SELECT role FROM users WHERE LOWER(username) = LOWER(?) AND password = ?";
+
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, username);
-            pstmt.setString(2, password);
-            ResultSet rs = pstmt.executeQuery();
+            pstmt.setString(1, cleanUser);
+            pstmt.setString(2, cleanPass);
 
-            if (rs.next()) {
-                return rs.getString("role");
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String standardRole = rs.getString("role");
+                    System.out.println("Auth Success: Found user matching role [" + standardRole + "]");
+                    return standardRole;
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Role security validation query vector failure trace: " + e.getMessage());
+        }
+
+        System.out.println("Auth Failure: No matching credentials found for username: [" + cleanUser + "]");
+        return null;
+    }
+    public static Patient getPatientByFayda(String fayda) {
+        String sql = "SELECT * FROM patients WHERE fayda = ?";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, fayda);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new Patient(
+                        rs.getString("name"), rs.getString("dob"), rs.getString("gender"),
+                        rs.getString("contact"), rs.getString("status"), rs.getString("doctor_name"),
+                        rs.getString("diagnosis"), rs.getString("treatment"), rs.getString("prescription"),
+                        rs.getString("appt_date"), rs.getString("fayda")
+                );
+            }
+        } catch (SQLException e) {
+            System.err.println("Database fetch error: " + e.getMessage());
         }
         return null;
     }
+    public static void addEncounter(String fayda, String diag, String treat, String presc) {
+        String sql = "INSERT INTO encounters (fayda, diagnosis, treatment, prescription, date) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, fayda);
+            pstmt.setString(2, diag);
+            pstmt.setString(3, treat);
+            pstmt.setString(4, presc);
+            pstmt.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+    public static ObservableList<Encounter> getPatientEncounters(String fayda) {
+        ObservableList<Encounter> list = javafx.collections.FXCollections.observableArrayList();
+        String sql = "SELECT date, diagnosis, treatment, prescription FROM encounters WHERE fayda = ?";
 
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL);
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, fayda);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                list.add(new Encounter(
+                        rs.getString("date"),
+                        rs.getString("diagnosis"),
+                        rs.getString("treatment"),
+                        rs.getString("prescription")
+                ));
+            }
+        } catch (SQLException e) { System.err.println("Error saving to encounter history: " + e.getMessage());}
+        return list;
     }
 }

@@ -5,11 +5,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f4e769a8-2ec0-4742-b6be-5c9ea3185361" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_31_2026_7_50_PM_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_1_31_2026_7_50_PM__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_1_2026_7_02_PM_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_1_2026_7_02_PM__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/receipts/TXN-1769702988452.txt" beforeDir="false" afterPath="$PROJECT_DIR$/receipts/TXN-1769702988452.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/AppLauncher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/AppLauncher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/BillingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/BillingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/ChoiceController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/ChoiceController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/DetailsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/DetailsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/EHRController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/EHRController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/LabController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/LabController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/LoginController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/controller/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/controller/MainController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/model/BillItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/model/BillItem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/model/DatabaseManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/model/DatabaseManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/model/LabResult.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/model/LabResult.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/clinic/model/Patient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/clinic/model/Patient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/billing-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/billing-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/choice-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/choice-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/details-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/details-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/ehr-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/ehr-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/lab-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/lab-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/login-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/login-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/main-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/main-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/style.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,6 +37,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="FxmlFile" />
         <option value="Class" />
       </list>
     </option>
@@ -48,7 +67,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/yonidilu/ClinicManagementSystem.git&quot;,
-    &quot;accountId&quot;: &quot;44edc958-a757-4f2d-8212-58d8b95b6a68&quot;
+    &quot;accountId&quot;: &quot;4b3d8ae2-51c5-4781-a8c6-75174c609146&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -62,12 +81,14 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;Application.Main.executor&quot;: &quot;Debug&quot;,
-    &quot;Application.RunClinic.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;Application.RunClinic.executor&quot;: &quot;Debug&quot;,
+    &quot;Maven.ClinicManagementSystem [clean].executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
@@ -89,8 +110,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.30387.90" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.30387.90" />
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.24374.151" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.24374.151" />
       </set>
     </attachedChunks>
   </component>
@@ -103,6 +124,10 @@
       <updated>1769721417346</updated>
       <workItem from="1770901259488" duration="271000" />
       <workItem from="1778356093346" duration="28000" />
+      <workItem from="1779878258817" duration="2586000" />
+      <workItem from="1779966700475" duration="18788000" />
+      <workItem from="1780032081683" duration="2784000" />
+      <workItem from="1780149285048" duration="11418000" />
     </task>
     <task id="LOCAL-00001" summary="fix: evicted the OneDrive ghost and gave the database a memory&#10;&#10;Finally made the &quot;Paid&quot; status stick after 5,000 restarts.&#10;&#10;Renamed variables so the code actually talks to itself correctly.&#10;it now has billing system, and patient medical history!&#10;&#10;If this breaks again, I’m becoming a farmer... you think i'm joking!?">
       <option name="closed" value="true" />

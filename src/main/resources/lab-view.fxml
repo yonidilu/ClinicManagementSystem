@@ -1,32 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
 
-<VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.clinic.controller.LabController" style="-fx-padding: 20;">
+<VBox spacing="15" alignment="TOP_CENTER" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17"
+      fx:controller="com.clinic.controller.LabController" style="-fx-background-color: #f4f7f6;" stylesheets="@style.css">
 
-    <Label text="Patient Lab History" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
-    <Label fx:id="patientInfoLabel" text="Patient: [Name] (ID: [ID])" />
+    <padding>
+        <Insets top="25" right="25" bottom="25" left="25"/>
+    </padding>
 
-    <TableView fx:id="labTable" VBox.vgrow="ALWAYS">
+    <Label text="Clinical Pathology Laboratory Information System"
+           style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+
+    <HBox alignment="CENTER_LEFT" style="-fx-background-color: #e8f4f8; -fx-padding: 12; -fx-background-radius: 5; -fx-border-color: #3498db;">
+        <Label fx:id="patientInfoLabel" text="Patient Tracking Focus: No Active Record Selected"
+               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2980b9;"/>
+    </HBox>
+
+    <TableView fx:id="labTable" VBox.vgrow="ALWAYS" prefHeight="250">
         <columns>
-            <TableColumn fx:id="testColumn" text="Test Name" prefWidth="150"/>
-            <TableColumn fx:id="resultColumn" text="Result" prefWidth="150"/>
-            <TableColumn fx:id="dateColumn" text="Date" prefWidth="100"/>
+            <TableColumn fx:id="testColumn" text="Diagnostic Test Profile" prefWidth="240"/>
+            <TableColumn fx:id="resultColumn" text="Observed Result Values" prefWidth="240"/>
+            <TableColumn fx:id="dateColumn" text="Completed Execution Date" prefWidth="180"/>
+
+            <TableColumn fx:id="actionColumn" text="Action" prefWidth="120" sortable="false"/>
         </columns>
     </TableView>
 
-    <HBox spacing="10" alignment="CENTER">
-        <ComboBox fx:id="testComboBox" promptText="Select Test" prefWidth="150"/>
-        <TextField fx:id="resultInput" promptText="Result (e.g. 110 mg/dL)"/>
+    <VBox fx:id="techControlsContainer" spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 5; -fx-border-color: #dcdde1;">
+        <Label text="Log New Analyte Test Finding" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
 
-        <Button text="Add Result" onAction="#handleAddResult"
-                style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+        <HBox spacing="15" alignment="CENTER_LEFT">
+            <Label text="Select Profile:"/>
+            <ComboBox fx:id="testComboBox" promptText="Choose Test Type" prefWidth="200"/>
 
-        <Button text="Remove" onAction="#handleDeleteResult"
-                style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
+            <Label text="Observed Result:"/>
+            <TextField fx:id="resultInput" promptText="e.g., 140 mg/dL, Normal" prefWidth="220"/>
 
-        <Button text="Print PDF" onAction="#handlePrintPDF"
-                style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+            <Button text="Commit Result Entry" onAction="#handleAddResult"
+                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
+
+            <Button text="🔄 Refresh Queue" onAction="#handleRefreshQueue"
+                    style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
+        </HBox>
+    </VBox>
+
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button text="Export Official PDF Lab Chart" onAction="#handlePrint"
+                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" prefWidth="220"/>
+        <Separator orientation="VERTICAL" prefHeight="30"/>
+        <Button text="Return to Master Roles Screen" onAction="#handleLogout"
+                style="-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-cursor: hand;"/>
     </HBox>
 </VBox>

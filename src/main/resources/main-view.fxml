@@ -2,6 +2,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
 
 <VBox fx:controller="com.clinic.controller.MainController"
       spacing="15" alignment="TOP_CENTER"
@@ -13,36 +15,46 @@
 
     <Label text="Clinic Patient Registry" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
 
-    <VBox spacing="10" alignment="CENTER" maxWidth="950" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-border-color: #dcdde1; -fx-border-radius: 5;">
-        <Label text="Patient Registration &amp; Update" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
+    <VBox fx:id="receptionFormSection" spacing="10" alignment="CENTER" maxWidth="950"
+          style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-border-color: #dcdde1; -fx-border-radius: 5;">
+
+        <Label text="Patient Registration &amp; Update Management" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
 
         <GridPane hgap="20" vgap="12" alignment="CENTER">
             <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
                 <Label text="Personal Details" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d; -fx-font-size: 12;"/>
                 <TextField fx:id="nameField" promptText="Patient's Full Name"/>
-                <TextField fx:id="genderField" promptText="Gender"/>
-                <TextField fx:id="dobField" promptText="Date of Birth"/>
+
+                <ComboBox fx:id="genderComboBox" promptText="Select Gender" maxWidth="Infinity">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Male" />
+                            <String fx:value="Female" />
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+
+                <DatePicker fx:id="dobDatePicker" promptText="Select Date of Birth" maxWidth="Infinity"/>
+
                 <TextField fx:id="contactField" promptText="Contact Number"/>
             </VBox>
 
             <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                <Label text="Medical Records" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d; -fx-font-size: 12;"/>
-                <ComboBox fx:id="doctorComboBox" promptText="Select Doctor" maxWidth="Infinity"/>
-                <TextField fx:id="diagnosisField" promptText="Diagnosis"/>
-                <TextField fx:id="treatmentField" promptText="Treatment"/>
-                <TextField fx:id="prescriptionField" promptText="Medicine Prescription"/>
+                <Label text="Administrative Triage" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d; -fx-font-size: 12;"/>
+                <ComboBox fx:id="doctorComboBox" promptText="Select Assigned Doctor" maxWidth="Infinity"/>
+                <TextField fx:id="statusField" promptText="Status (e.g., Waiting, In-Progress)"/>
+
+                <DatePicker fx:id="apptDatePicker" promptText="Select Appointment Date" maxWidth="Infinity"/>
             </VBox>
 
             <VBox spacing="8" GridPane.columnIndex="2" GridPane.rowIndex="0">
-                <Label text="Administrative" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d; -fx-font-size: 12;"/>
-                <TextField fx:id="faydaField" promptText="ID"/>
-                <TextField fx:id="apptDateField" promptText="Appointment Date"/>
+                <Label text="Administrative Fees" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d; -fx-font-size: 12;"/>
+                <TextField fx:id="faydaField" promptText="ID (National ID / Fayda)"/>
                 <TextField fx:id="paidAmountField" promptText="Paid Amount"/>
-                <TextField fx:id="statusField" promptText="Status (Waiting, etc.)"/>
             </VBox>
         </GridPane>
 
-        <Button fx:id="registerButton" text="Add Patient" onAction="#handleAddPatient"
+        <Button fx:id="registerButton" text="Add New Patient Record" onAction="#handleAddPatient"
                 maxWidth="400" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;">
             <VBox.margin>
                 <Insets top="10"/>
@@ -52,37 +64,38 @@
 
     <Separator />
 
-    <TextField fx:id="searchField" promptText="Search patients by name or ID..." maxWidth="800"/>
+    <TextField fx:id="searchField" promptText="Search patient files by name or unique ID..." maxWidth="800"/>
 
     <TableView fx:id="patientTable" prefHeight="300" prefWidth="900">
         <columns>
-            <TableColumn fx:id="faydaColumn" text="ID" prefWidth="80" />
-            <TableColumn fx:id="nameColumn" text="Patient Name" prefWidth="120" />
+            <TableColumn fx:id="faydaColumn" text="ID" prefWidth="90" />
+            <TableColumn fx:id="nameColumn" text="Patient Name" prefWidth="140" />
             <TableColumn fx:id="dobColumn" text="Date of Birth" prefWidth="100" />
-            <TableColumn fx:id="genderColumn" text="Gender" prefWidth="70" />
-            <TableColumn fx:id="contactColumn" text="Contact" prefWidth="110" />
-
-            <TableColumn fx:id="doctorColumn" text="Doctor" prefWidth="120" />
-
-            <TableColumn fx:id="lastVisitColumn" text="Last Visit" prefWidth="100" />
-            <TableColumn fx:id="balanceColumn" text="Balance" prefWidth="90" />
-            <TableColumn fx:id="statusColumn" text="Status" prefWidth="90" />
-            <TableColumn fx:id="regDateColumn" text="Reg. Date" prefWidth="100" />
+            <TableColumn fx:id="genderColumn" text="Gender" prefWidth="80" />
+            <TableColumn fx:id="contactColumn" text="Contact" prefWidth="120" />
+            <TableColumn fx:id="doctorColumn" text="Assigned Doctor" prefWidth="130" />
+            <TableColumn fx:id="statusColumn" text="Status" prefWidth="100" />
+            <TableColumn fx:id="regDateColumn" text="Reg. Date" prefWidth="110" />
         </columns>
     </TableView>
 
     <HBox spacing="15" alignment="CENTER">
-        <Button text="Remove Selected" onAction="#handleRemoveSelected" style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
-        <Button text="View Details" onAction="#onShowDetails" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
-        <Button text="Edit Selected" onAction="#onEditButtonClick" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
-    </HBox>
-    <HBox spacing="15" alignment="CENTER">
-        <Button text="Billing" onAction="#onBillingButtonClick"
-                style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold;"/>
-        <Button fx:id="viewHistoryBtn" text="View Medical History"
-                onAction="#handleViewHistory" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
-        <Button text="Logout" onAction="#handleLogout" style="-fx-background-color: #7f8c8d; -fx-text-fill: white;" />
+        <Button fx:id="removeSelectedButton" text="Remove Selected Record" onAction="#handleRemoveSelected"
+                style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
+        <Button fx:id="editSelectedButton" text="Edit Credentials" onAction="#onEditButtonClick"
+                style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+        <Button text="View File Details" onAction="#onShowDetails"
+                style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
     </HBox>
 
-    <Label fx:id="countLabel" text="Total Patients: 0" style="-fx-font-italic: true;"/>
+    <HBox spacing="15" alignment="CENTER">
+        <Button fx:id="billingButton" text="Open Financial Ledger (Billing)" onAction="#onBillingButtonClick"
+                style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold;"/>
+        <Button fx:id="viewHistoryBtn" text="Open Clinical Medical History" onAction="#handleViewHistory"
+                style="-fx-background-color: #2c3e50; -fx-text-fill: white; -fx-font-weight: bold;"/>
+        <Button text="Sign Out" onAction="#handleLogout"
+                style="-fx-background-color: #7f8c8d; -fx-text-fill: white;" />
+    </HBox>
+
+    <Label fx:id="countLabel" text="Total Active Records: 0" style="-fx-font-italic: true;"/>
 </VBox>

@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="15" alignment="CENTER" prefHeight="300" prefWidth="400"
+<VBox fx:id="rootContainer" spacing="15" alignment="CENTER" prefHeight="350" prefWidth="400"
       xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.clinic.controller.DetailsController" style="-fx-padding: 20;">
 
@@ -37,8 +37,8 @@
         <Label fx:id="paymentLabel" text="Loading..." GridPane.columnIndex="1" GridPane.rowIndex="7"/>
     </GridPane>
 
-    <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button text="View Lab Results" onAction="#onOpenLabResults"
+    <HBox fx:id="actionBox" spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="labResultsButton" text="View Lab Results" onAction="#onOpenLabResults"
                 style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
         <Button text="Close" onAction="#onClose" />
     </HBox>

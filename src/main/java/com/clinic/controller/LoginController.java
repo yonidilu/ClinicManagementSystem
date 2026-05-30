@@ -1,129 +1,119 @@
 package com.clinic.controller;
 
+import com.clinic.model.DatabaseManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import java.io.IOException;
-import com.clinic.model.DatabaseManager;
 
 public class LoginController {
+
+    @FXML private Label roleHeaderLabel;
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
-    @FXML private Label errorLabel;
-    @FXML private Label roleLabel;
 
-    private String targetRole = "Staff";
+    private String anticipatedRoleBoundary;
 
-    public void setTargetRole(String role) {
-        this.targetRole = role;
-        if (roleLabel != null) roleLabel.setText(role + " Login");
+    @FXML
+    public void initialize() {
+        // Read which role context was targeted during choice window selection
+        this.anticipatedRoleBoundary = DatabaseManager.getCurrentUserRole();
+
+        if (anticipatedRoleBoundary != null && !anticipatedRoleBoundary.isEmpty()) {
+            roleHeaderLabel.setText("Authentication Gate: " + anticipatedRoleBoundary + " Subsystem");
+        } else {
+            roleHeaderLabel.setText("System Security Access Gate");
+        }
     }
 
     @FXML
-    private void handleLogin(ActionEvent event) {
-        String user = usernameField.getText();
-        String pass = passwordField.getText();
+    private void handleLoginAction(ActionEvent event) {
+        String enteredUser = usernameField.getText().trim();
+        String enteredPass = passwordField.getText().trim();
 
-        //Asks the Database what role this user has
-        String role = DatabaseManager.verifyUserRole(user, pass);
+        if (enteredUser.isEmpty() || enteredPass.isEmpty()) {
+            displaySecurityNotice("Input Missing", "Please enter valid credential tokens to clear security parameters.");
+            return;
+        }
 
-        if ("HR".equalsIgnoreCase(role)) {
-            // Send HR users to their dashboard
-            switchToScene(event, "/hr-dashboard-view.fxml", "HR Dashboard");
-        } else if (role != null && role.equalsIgnoreCase("DOCTOR")) {
-            // Send Doctors to the patient records (Main View)
-            switchToDashboard(event, role);
+        // Validate the credentials directly against our persistent user directory
+        String validatedRole = DatabaseManager.verifyUserRole(enteredUser, enteredPass);
+
+        // Security check: Verify that user exists and their assigned database role matches their current selection intent
+        if (validatedRole != null && validatedRole.equalsIgnoreCase(anticipatedRoleBoundary)) {
+
+            // Lock in the global user session parameters
+            DatabaseManager.setCurrentSession(enteredUser, validatedRole);
+
+            // Route to the appropriate operational console dashboard
+            routeUserToWorkspace(event, validatedRole);
         } else {
-            // If DatabaseManager.verifyUserRole returns null, show error
-            errorLabel.setText("Invalid credentials!");
+            displaySecurityNotice("Clearance Denied", "Invalid username, password, or role alignment parameters.");
         }
     }
-    // A helper method to keep your code clean and dry
-    private void switchToScene(ActionEvent event, String fxmlPath, String title) {
+
+    private void routeUserToWorkspace(ActionEvent event, String role) {
+        String fxmlPath = "LAB_UNIT".equalsIgnoreCase(role) ? "/lab-view.fxml" : "/main-view.fxml";
+        String titleString = "LAB_UNIT".equalsIgnoreCase(role) ?
+                "Clinical Laboratory Subsystem Operational Registry" : "Clinic Hub Management System - Active Workspace: " + role;
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle(title);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    private void switchToDashboard(ActionEvent event, String role) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-view.fxml"));
-            Parent root = loader.load();
 
-            MainController mainController = loader.getController();
-            mainController.setRole(role);
+            // FIXED: Reuse the existing scene framework structure
+            Scene existingScene = stage.getScene();
+            if (existingScene != null) {
+                existingScene.setRoot(root);
+            } else {
+                stage.setScene(new Scene(root));
+            }
 
-            // Switch the stage
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Clinic Management System - " + role);
+            stage.setTitle(titleString);
             stage.setMaximized(true);
-            stage.show();
         } catch (IOException e) {
-            System.err.println("Error loading main-view.fxml. Check your file path!");
+            displaySecurityNotice("System Frame Error", "Could not initialize selected environment framework panel layout.");
             e.printStackTrace();
         }
     }
 
     @FXML
-    private void goBack(ActionEvent event) {
+    private void handleCancel(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/choice-view.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 400, 400));
-        } catch (Exception e) { e.printStackTrace(); }
-    }
-
-    private void loadDashboard(ActionEvent event, boolean isAdmin) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-view.fxml"));
+            DatabaseManager.setCurrentSession("", "");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/choice-view.fxml"));
             Parent root = loader.load();
-
-            MainController controller = loader.getController();
-            controller.setAccessLevel(isAdmin);
-
-            // Inside login logic...
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
 
-        // FORCE MAXIMIZE
+            // FIXED: Reuse the existing scene framework structure
+            Scene existingScene = stage.getScene();
+            if (existingScene != null) {
+                existingScene.setRoot(root);
+            } else {
+                stage.setScene(new Scene(root));
+            }
+
+            stage.setTitle("Clinic Management System - Welcome Portal");
             stage.setMaximized(true);
-            stage.show();
-        } catch (Exception e) {
-            System.err.println("CRITICAL: Failed to load dashboard! Check method names.");
-            e.printStackTrace();
-        }
-    }
-    private void openDashboard() {
-        try {
-            //Load the Main Dashboard FXML file
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-dashboard.fxml"));
-            Parent root = loader.load();
-
-            //Get the current "Stage" (the window)
-            Stage stage = (Stage) usernameField.getScene().getWindow();
-
-            //Set the new scene (the Dashboard)
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.setTitle("Clinic Management System - Dashboard");
-            stage.setMaximized(true);
-            stage.show();
-
         } catch (IOException e) {
-            System.err.println("Could not find the dashboard FXML file!");
             e.printStackTrace();
         }
+    }
+
+    private void displaySecurityNotice(String headline, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(headline);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

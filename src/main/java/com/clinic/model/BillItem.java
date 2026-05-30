@@ -5,6 +5,7 @@ import javafx.beans.property.*;
 public class BillItem {
     private final StringProperty serviceName;
     private final DoubleProperty cost;
+    private boolean discounted = false;
 
     public BillItem(String serviceName, double cost) {
         this.serviceName = new SimpleStringProperty(serviceName);
@@ -15,14 +16,15 @@ public class BillItem {
     public String getServiceName() { return serviceName.get(); }
     public double getCost() { return cost.get(); }
 
+    // ADDED: Standard Setter for Service Name to resolve the BillingController compilation error
+    public void setServiceName(String serviceName) { this.serviceName.set(serviceName); }
+
     // JavaFX Property Getters (Required for TableView binding)
     public StringProperty serviceNameProperty() { return serviceName; }
     public DoubleProperty costProperty() { return cost; }
 
     public void setCost(double cost) { this.cost.set(cost); }
-    private boolean discounted = false;
 
     public boolean isDiscounted() { return discounted; }
     public void setDiscounted(boolean discounted) { this.discounted = discounted; }
-
 }

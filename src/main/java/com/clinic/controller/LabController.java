@@ -2,20 +2,26 @@ package com.clinic.controller;
 
 import com.clinic.model.Patient;
 import com.clinic.model.DatabaseManager;
+import com.clinic.model.LabResult;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.util.Callback;
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
-import com.clinic.model.LabResult; // This connects the Controller to Model class
-import com.clinic.model.DatabaseManager; // Connects to database logic
-import javafx.collections.FXCollections; // Required for TableView items
-import java.util.List; // Required for the list of results
-import java.util.Optional;
-
-import javafx.scene.control.TextField;
-import javafx.scene.control.Label;
-import javafx.scene.control.Button;
-import javafx.collections.FXCollections;
+import java.util.List;
+import javafx.application.Platform;
 
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -23,146 +29,303 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 
-import javafx.stage.FileChooser;
-import java.io.File;
-
 public class LabController {
+
+    public VBox techControlsContainer;
+    @FXML private Label patientInfoLabel;
+
+    // Lab Results Table Binding Variables - Swapped to a Unified Queue System
+    @FXML private TableView<LabResult> labTable;
     @FXML private TableColumn<LabResult, String> testColumn;
     @FXML private TableColumn<LabResult, String> resultColumn;
     @FXML private TableColumn<LabResult, String> dateColumn;
-    @FXML private TableView<LabResult> labTable; // Add the <LabResult> here!
-    @FXML private Label patientInfoLabel;
 
+    // NEW COLUMNS: Added to trace the Patient Identity and the Ordering Doctor explicitly
+    @FXML private TableColumn<LabResult, String> faydaColumn;
+    @FXML private TableColumn<LabResult, String> orderingDoctorColumn;
 
-    @FXML private ComboBox<String> testComboBox; // Replaces testInput
+    // CHANGED: Injected Action Column to render the custom inline Edit buttons
+    @FXML private TableColumn<LabResult, Void> actionColumn;
+
+    // Interactive Node Components
+    @FXML private ComboBox<String> testComboBox;
     @FXML private TextField resultInput;
 
+    private ObservableList<LabResult> activeLabList = FXCollections.observableArrayList();
 
-    private Patient currentPatient;
+    // Context field tracker to distinguish between a clean log commit and an inline row mutation edit
+    private LabResult editingRecordContext = null;
 
-    public void setPatient(Patient patient) {
-        // Adding common clinical tests to the dropdown
-        testComboBox.setItems(FXCollections.observableArrayList(
-                "Blood Sugar",
-                "Cholesterol",
-                "Hemoglobin",
-                "Blood Pressure",
-                "Urine Analysis",
-                "Malaria Test"
-        ));
+    @FXML
+    public void initialize() {
+        // 1. Map table properties to display a complete, shared list across the clinic
+        if (faydaColumn != null) {
+            faydaColumn.setCellValueFactory(new PropertyValueFactory<>("patientFayda"));
+        }
+        testColumn.setCellValueFactory(new PropertyValueFactory<>("testName"));
+        resultColumn.setCellValueFactory(new PropertyValueFactory<>("resultValue"));
+        dateColumn.setCellValueFactory(new PropertyValueFactory<>("testDate"));
 
-        this.currentPatient = patient;
-        patientInfoLabel.setText("Results for: " + patient.getName());
+        if (orderingDoctorColumn != null) {
+            orderingDoctorColumn.setCellValueFactory(new PropertyValueFactory<>("orderingDoctor"));
+        }
 
-        // Setup table columns
-        testColumn.setCellValueFactory(cellData -> cellData.getValue().testNameProperty());
-        resultColumn.setCellValueFactory(cellData -> cellData.getValue().resultValueProperty());
-        dateColumn.setCellValueFactory(cellData -> cellData.getValue().testDateProperty());
+        // Initialize the custom cell factory layout to populate inline buttons
+        setupActionColumnButtons();
 
-        refreshTable();
+        // 2. Load the professional selection styling
+        try {
+            labTable.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+        } catch (Exception e) {
+            System.err.println("CSS stylesheet not found: " + e.getMessage());
+        }
+
+        // 3. SECURITY: Hide technician controls if user is not a LAB_UNIT
+        String role = DatabaseManager.getCurrentUserRole();
+        if (!"LAB_UNIT".equals(role)) {
+            techControlsContainer.setVisible(false);
+            techControlsContainer.setManaged(false); // Collapses the layout
+        }
+
+        // 4. Populate available drop-down profiles for execution choices
+        if (testComboBox != null) {
+            testComboBox.setItems(FXCollections.observableArrayList(
+                    "Complete Blood Count (CBC)",
+                    "Basic Metabolic Panel (BMP)",
+                    "Lipid Panel",
+                    "Thyroid Function Panel (TSH)",
+                    "Hemoglobin A1C (HbA1c)",
+                    "Urinalysis Profile"
+            ));
+        }
+
+        // 5. Set layout title and draw all outstanding orders instantly
+        patientInfoLabel.setText("Clinical Pathology Lab Queue — Universal Access Active Monitoring Node");
+        refreshLabTable();
     }
 
-    private void refreshTable() {
-        if (currentPatient != null) {
-            // Fetch from DB using the unique fayda ID
-            List<LabResult> results = DatabaseManager.getLabResults(currentPatient.getFayda());
-            labTable.setItems(FXCollections.observableList(results));
-        }
+    // NEW: Handles the generation and click hooks of the custom inline Edit buttons
+    private void setupActionColumnButtons() {
+        if (actionColumn == null) return;
+
+        Callback<TableColumn<LabResult, Void>, TableCell<LabResult, Void>> cellFactory =
+                new Callback<TableColumn<LabResult, Void>, TableCell<LabResult, Void>>() {
+                    @Override
+                    public TableCell<LabResult, Void> call(final TableColumn<LabResult, Void> param) {
+                        return new TableCell<LabResult, Void>() {
+                            private final Button editBtn = new Button("Edit");
+
+                            {
+                                editBtn.setStyle("-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 12px;");
+                                editBtn.setOnAction(event -> {
+                                    LabResult targetRowData = getTableView().getItems().get(getIndex());
+                                    handleLoadRowIntoForm(targetRowData);
+                                });
+                            }
+
+                            @Override
+                            protected void updateItem(Void item, boolean empty) {
+                                super.updateItem(item, empty);
+                                if (empty) {
+                                    setGraphic(null);
+                                } else {
+                                    setGraphic(editBtn);
+                                }
+                            }
+                        };
+                    }
+                };
+
+        actionColumn.setCellFactory(cellFactory);
+    }
+
+    // NEW: Pulls data properties out of the selected table row directly down into the modification panel fields
+    private void handleLoadRowIntoForm(LabResult selectedLab) {
+        if (selectedLab == null) return;
+
+        this.editingRecordContext = selectedLab;
+
+        testComboBox.setValue(selectedLab.getTestName());
+        resultInput.setText(selectedLab.getResultValue());
+
+        resultInput.requestFocus();
+    }
+
+    // NEW: Bound to the FXML Refresh queue action to reload the data collections
+    @FXML
+    private void handleRefreshQueue(ActionEvent event) {
+        refreshLabTable();
+    }
+
+    private void refreshLabTable() {
+        activeLabList.clear();
+
+        // Fetch every single lab test recorded across the clinic management database
+        List<LabResult> allOrders = DatabaseManager.getAllLabResults();
+
+        activeLabList.addAll(allOrders);
+        labTable.setItems(activeLabList);
+    }
+
+    public void initializePatientContext(Patient patient) {
+        if (patient == null) return;
+
+        // Use this patient to filter the lab results
+        this.patientInfoLabel.setText("Laboratory Results for: " + patient.getName());
+
+        // Now call your database fetcher using the patient's ID
+        loadLabResultsForPatient(patient.getFayda());
+    }
+
+    private void loadLabResultsForPatient(String fayda) {
+        activeLabList.clear();
+        activeLabList.addAll(DatabaseManager.getPatientLabs(fayda));
+        labTable.setItems(activeLabList);
     }
 
     @FXML
-    private void handleAddResult() {
-        String selectedTest = testComboBox.getValue(); // Get value from dropdown
-        String resultVal = resultInput.getText();
+    private void handleAddResult(ActionEvent event) {
+        String resultText = resultInput.getText().trim();
+        String selectedTest = testComboBox.getValue();
 
-        if (selectedTest == null || resultVal.isEmpty()) {
-            System.out.println("Please select a test and enter a result!");
+        if (selectedTest == null) {
+            displayStatusAlert("Input Verification Error", "Please select a diagnostic test type profile option.");
             return;
         }
 
-        if (currentPatient != null) {
-            DatabaseManager.addLabResult(
-                    currentPatient.getFayda(),
-                    selectedTest,
-                    resultVal,
-                    java.time.LocalDate.now().toString()
+        if (resultText.isEmpty()) {
+            displayStatusAlert("Input Verification Error", "Please type the recorded diagnostic measurements inside the results field box.");
+            return;
+        }
+
+        boolean success;
+
+        // Trace state context logic: check if we are updating an existing entry or making a new one
+        if (editingRecordContext != null) {
+            // Context update state strategy path
+            success = DatabaseManager.updateLabResultValue(
+                    editingRecordContext.getPatientFayda(),
+                    editingRecordContext.getTestName(),
+                    resultText,
+                    LocalDate.now().toString()
             );
 
+            // Clear the tracked mutation pointer after completion
+            this.editingRecordContext = null;
+        } else {
+            // Standard execution path fallback logic if logging entirely from scratch
+            LabResult selectedOrder = labTable.getSelectionModel().getSelectedItem();
+            if (selectedOrder == null) {
+                displayStatusAlert("Selection Error", "Please select a specific patient row from the queue table before running a new commit entry.");
+                return;
+            }
+
+            success = DatabaseManager.updateLabResultValue(
+                    selectedOrder.getPatientFayda(),
+                    selectedTest,
+                    resultText,
+                    LocalDate.now().toString()
+            );
+        }
+
+        if (success) {
+            refreshLabTable();
             resultInput.clear();
-            refreshTable(); // Update the UI immediately
+            testComboBox.setValue(null);
+            displayStatusAlert("Entry Saved", "Analytical laboratory measurements updated on the system queue cleanly.");
+        } else {
+            displayStatusAlert("Database Mutation Fault", "Failed to preserve testing data fields inside the database layer.");
         }
     }
-    @FXML
-    private void handleDeleteResult() {
-        LabResult selected = (LabResult) labTable.getSelectionModel().getSelectedItem();
 
-        if (selected == null) {
-            System.out.println("No result selected for deletion.");
+    @FXML
+    private void handlePrint(ActionEvent event) {
+        LabResult selectedOrder = labTable.getSelectionModel().getSelectedItem();
+        if (selectedOrder == null) {
+            displayStatusAlert("Export Blocked", "Please highlight a specific test order row from the table queue list to build an official PDF chart.");
             return;
         }
 
-        // Create the confirmation alert
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Delete Confirmation");
-        alert.setHeaderText("Removing Lab Result");
-        alert.setContentText("Are you sure you want to delete the '" + selected.getTestName() + "' result?");
-
-        // Show the alert and wait for the user to click a button
-        Optional<ButtonType> result = alert.showAndWait();
-
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            // Proceed with deletion if OK was clicked
-            DatabaseManager.deleteLabResult(currentPatient.getFayda(), selected.getTestName());
-            refreshTable();
-            System.out.println("Result deleted successfully.");
-        } else {
-            System.out.println("Deletion cancelled.");
-        }
-    }
-    @FXML
-    private void handlePrintPDF() {
-        if (currentPatient == null) return;
-
-        //Setup the File Selection Window
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save Lab Report");
-        fileChooser.setInitialFileName("LabReport_" + currentPatient.getName().replace(" ", "_") + ".pdf");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        fileChooser.setTitle("Save Certified Patient Diagnostics Report");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Charts (*.pdf)", "*.pdf"));
+        fileChooser.setInitialFileName("Lab_Report_Fayda_" + selectedOrder.getPatientFayda() + ".pdf");
 
-        //Show the "Save" dialog
-        File file = fileChooser.showSaveDialog(labTable.getScene().getWindow());
+        File exportLocation = fileChooser.showSaveDialog(labTable.getScene().getWindow());
 
-        if (file != null) {
+        if (exportLocation != null) {
             try {
-                PdfWriter writer = new PdfWriter(file.getAbsolutePath());
-                PdfDocument pdf = new PdfDocument(writer);
-                Document document = new Document(pdf);
+                PdfWriter pdfWriter = new PdfWriter(exportLocation.getAbsolutePath());
+                PdfDocument pdfDocument = new PdfDocument(pdfWriter);
+                Document document = new Document(pdfDocument);
 
-                // Report Content
-                document.add(new Paragraph("CLINIC PATIENT LAB REPORT").setBold().setFontSize(18));
-                document.add(new Paragraph("Patient: " + currentPatient.getName() + " (ID: " + currentPatient.getFayda() + ")"));
-                document.add(new Paragraph("Generated on: " + java.time.LocalDate.now()));
+                // Build Structured iText Layout Definitions
+                document.add(new Paragraph("OFFICIAL CLINIC DIAGNOSTIC LABORATORY CHARTS").setBold().setFontSize(16));
+                document.add(new Paragraph("========================================================================="));
+                document.add(new Paragraph("National Registration Key (Fayda): " + selectedOrder.getPatientFayda()));
+                document.add(new Paragraph("Diagnostic Panel Type: " + selectedOrder.getTestName()));
+                document.add(new Paragraph("Authorized Ordering Professional: " + selectedOrder.getOrderingDoctor()));
+                document.add(new Paragraph("Report Compiling Date: " + LocalDate.now()));
                 document.add(new Paragraph("\n"));
 
-                // Table for Results
-                Table table = new Table(3);
-                table.addCell("Test Name");
-                table.addCell("Result");
-                table.addCell("Date");
+                // Configure a 3-column table matrix structure for grid formatting
+                Table analyticalTable = new Table(3);
+                analyticalTable.addCell("Diagnostic Test Profile");
+                analyticalTable.addCell("Observed Result Metric");
+                analyticalTable.addCell("Execution Date");
 
-                for (LabResult res : labTable.getItems()) {
-                    table.addCell(res.getTestName());
-                    table.addCell(res.getResultValue());
-                    table.addCell(res.getTestDate());
-                }
+                analyticalTable.addCell(selectedOrder.getTestName());
+                analyticalTable.addCell(selectedOrder.getResultValue());
+                analyticalTable.addCell(selectedOrder.getTestDate());
 
-                document.add(table);
+                document.add(analyticalTable);
                 document.close();
 
-                System.out.println("Report saved to: " + file.getAbsolutePath());
+                displayStatusAlert("Export Complete", "Certified laboratory PDF document saved successfully!");
             } catch (Exception e) {
+                System.err.println("Fatal iText engine mapping failure encountered during document print loop.");
                 e.printStackTrace();
+                displayStatusAlert("PDF Engine Fault", "The system encountered an error writing data cells down to the document framework.");
             }
         }
+    }
+
+
+
+    @FXML
+    private void handleLogout(ActionEvent event) {
+        try {
+            DatabaseManager.setCurrentSession("", "");
+            MainController.selectedPatientSessionContext = null;
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/choice-view.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("Clinic Management System - Welcome Portal");
+
+            // 1. Render the new layout to the screen first
+            stage.show();
+
+            // 2. Queue the maximization request to run right after the OS finishes drawing the window
+            Platform.runLater(() -> {
+                stage.setMaximized(false); // Reset the state toggle first to clear OS memory
+                stage.setMaximized(true);  // Force a clean maximization pass
+            });
+
+        } catch (IOException e) {
+            displayStatusAlert("Navigation Failure", "Could not route back to welcome choice layout.");
+            e.printStackTrace();
+        }
+    }
+
+    private void displayStatusAlert(String title, String bodyText) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(bodyText);
+        alert.showAndWait();
     }
 }

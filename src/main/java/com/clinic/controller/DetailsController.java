@@ -1,5 +1,6 @@
 package com.clinic.controller;
 
+import com.clinic.model.DatabaseManager;
 import com.clinic.model.Patient;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -7,13 +8,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 
 public class DetailsController {
-    // These MUST be declared here with @FXML
+
+    // FXML Graphical Layout Mappings
     @FXML private Label fullNameLabel;
     @FXML private Label dobLabel;
     @FXML private Label idLabel;
@@ -23,46 +25,75 @@ public class DetailsController {
     @FXML private Label appointmentLabel;
     @FXML private Label paymentLabel;
 
-    private Patient currentPatient;
+    // NEW: Injected components from your updated FXML
+    @FXML private HBox actionBox;
+    @FXML private Button labResultsButton;
 
-    public void setPatientData(Patient patient) {
-        this.currentPatient = patient;
+    private Patient currentPatientContext;
 
-        if (patient != null) {
-            fullNameLabel.setText(patient.getName());
-            dobLabel.setText(patient.getDob());
-            idLabel.setText(patient.getFayda());
-            doctorLabel.setText(patient.getAssignedDoctor());
-            diagnosisLabel.setText(patient.getDiagnosis());
-            treatmentLabel.setText(patient.getTreatment());
-            appointmentLabel.setText(patient.getAppointmentDate());
-            paymentLabel.setText(patient.getPaymentStatus());
+    /**
+     * Initializes the controller and applies security constraints.
+     */
+    @FXML
+    public void initialize() {
+        // SECURITY: Role-based access control for the lab button
+        String role = DatabaseManager.getCurrentUserRole();
+        if (!"DOCTOR".equals(role) && !"LAB_UNIT".equals(role)) {
+            labResultsButton.setVisible(false);
+            labResultsButton.setManaged(false); // Removes the button from the HBox layout
         }
+    }
+
+    public void populatePatientDetails(Patient patient) {
+        if (patient == null) return;
+        this.currentPatientContext = patient;
+
+        fullNameLabel.setText(patient.getName());
+        dobLabel.setText(patient.getDob());
+        idLabel.setText(patient.getFayda());
+        doctorLabel.setText(patient.getAssignedDoctor() != null ? patient.getAssignedDoctor() : "Unassigned");
+        diagnosisLabel.setText(patient.getDiagnosis() != null ? patient.getDiagnosis() : "No active diagnosis filed.");
+        treatmentLabel.setText(patient.getTreatment() != null ? patient.getTreatment() : "No therapy plan assigned.");
+        appointmentLabel.setText(patient.getAppointmentDate() != null ? patient.getAppointmentDate() : "None scheduled.");
+        paymentLabel.setText(patient.getPaymentStatus() != null ? patient.getPaymentStatus() : "Pending");
     }
 
     @FXML
     private void onOpenLabResults(ActionEvent event) {
-        if (currentPatient != null) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/lab-view.fxml"));
-                Parent root = loader.load();
+        if (currentPatientContext == null) {
+            displayAlert("System Error", "No patient record loaded in active window view.");
+            return;
+        }
 
-                LabController controller = loader.getController();
-                controller.setPatient(currentPatient);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/lab-view.fxml"));
+            Parent root = loader.load();
 
-                Stage stage = new Stage();
-                stage.setScene(new Scene(root));
-                stage.setTitle("Lab Results - " + currentPatient.getName());
-                stage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            LabController labController = loader.getController();
+            labController.initializePatientContext(currentPatientContext);
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Clinic Laboratory Workspace - " + currentPatientContext.getName());
+            stage.show();
+
+        } catch (IOException e) {
+            displayAlert("Navigation Crash", "Could not load laboratory interface.");
+            e.printStackTrace();
         }
     }
+
     @FXML
     private void onClose(ActionEvent event) {
-        // This finds the window the button is in and closes it
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.close();
+    }
+
+    private void displayAlert(String header, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(header);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

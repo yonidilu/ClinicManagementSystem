@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" alignment="CENTER" prefWidth="600" prefHeight="400" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.clinic.controller.HistoryController">
+    <Label text="Clinical Encounter History" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+    <TableView fx:id="historyTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="dateCol" text="Date" prefWidth="150"/>
+            <TableColumn fx:id="diagCol" text="Diagnosis" prefWidth="150"/>
+            <TableColumn fx:id="treatCol" text="Treatment" prefWidth="150"/>
+            <TableColumn fx:id="prescCol" text="Prescription" prefWidth="150"/>
+        </columns>
+    </TableView>
+    <Button text="Close Window" onAction="#handleClose"/>
+</VBox>

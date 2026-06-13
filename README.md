@@ -1,23 +1,27 @@
-# 🏥 Clinic Management System
-A modern, high-performance JavaFX application designed for healthcare administration. Featuring a custom "Sunset" UI, secure login architecture, and automated patient record management.
+# Blue-Care Integrated Clinic Registry System
 
-## ✨ Features
-* **Role-Based Access:** Dedicated interfaces for Admins and Doctors.
-* **Modern UI/UX:** Styled with custom CSS, featuring Glassmorphism and vibrant gradients.
-* **Patient Management:** Full CRUD (Create, Read, Update, Delete) functionality for patient records.
-* **Data Persistence:** Secure handling of medical data via `.dat` and PDF export capabilities.
+An enterprise-ready desktop application built to handle the rigorous registry, tracking, and relational data persistence requirements of modern medical clinics.
 
-## 🎨 Visuals
-* **Theme:** Sunset Gradient (Midnight Blue to Amber)
-* **Design Language:** Rounded components, hover animations, and high-contrast typography.
+## 🏗️ Architecture & System Design
+The application utilizes a clean structural layout isolating user interfaces from data transaction layers. This pattern ensures database sanity and keeps user inputs modular.
 
-## 🛠️ Built With
-* **Java 21**
-* **JavaFX 21** (UI Framework)
-* **Maven** (Dependency Management)
-* **CSS3** (Custom Styling)
 
-## 🚀 Getting Started
-1. Ensure JavaFX SDK is configured in your environment.
-2. Run `mvn clean install` to build dependencies.
-3. Launch via `App.java`.
+
+[Image of Model View Controller architecture diagram]
+
+
+## ✨ Core Features
+* **Patient Registration & Querying:** High-speed indexing of patient demographic profiles mapped directly to scalable relational tables.
+* **Dynamic UI Rendering:** Built with JavaFX to deliver smooth view mutations and responsive interface transitions.
+* **Relational Stability:** Built-in validation constraints preventing orphan records, mismatched keys, or broken data anomalies.
+
+## 💻 Tech Stack
+* **Frontend:** JavaFX 
+* **Build & Dependency Management:** Maven
+* **Backend Engine:** Java Core
+* **Persistence Layer:** SQL 
+
+## 🚀 Installation & Local Setup
+1. Clone the repository:
+   ```bash
+   git clone [https://github.com/yonidilu/Blue-Care.git](https://github.com/yonidilu/Blue-Care.git)

@@ -24,4 +24,4 @@ The application utilizes a clean structural layout isolating user interfaces fro
 ## 🚀 Installation & Local Setup
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/yonidilu/Blue-Care.git](https://github.com/yonidilu/Blue-Care.git)
+   git clone [https://github.com/yonidilu/Blue-Care.git](https://github.com/yonidilu/ClinicManagementSystem.git)
